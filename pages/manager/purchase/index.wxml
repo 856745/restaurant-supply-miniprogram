@@ -1,0 +1,81 @@
+<view class="manager-theme fix-top purchase-page">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索货品名称、规格或供货商" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+
+  <!-- 供应商 Tab -->
+  <view class="supplier-tabs">
+    <scroll-view scroll-x class="supplier-scroll">
+      <view class="supplier-tab {{activeSupplierId === item._id ? 'active' : ''}}"
+        wx:for="{{suppliers}}" wx:key="_id"
+        bindtap="onSupplierTap" data-id="{{item._id}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 商品种类分类 Tab -->
+  <view class="cat-tabs">
+    <scroll-view scroll-x class="cat-scroll">
+      <view class="cat-tab {{activeCat === item.id ? 'active' : ''}}"
+        wx:for="{{catList}}" wx:key="id"
+        bindtap="onCatTap" data-id="{{item.id}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 货品列表 -->
+  <view class="goods-scroll" wx:if="{{goodsList.length}}">
+    <view class="goods-card" wx:for="{{goodsList}}" wx:key="_id">
+      <view class="goods-card-inner">
+        <!-- 图片区 -->
+        <image wx:if="{{item.hasImage}}" src="{{item.image}}" mode="aspectFill" class="goods-card-img" />
+        <view wx:else class="goods-card-avatar">{{item.icon}}</view>
+
+        <!-- 信息区 -->
+        <view class="goods-card-info">
+          <view class="goods-card-name">{{item.name}}</view>
+          <view class="goods-card-supplier" wx:if="{{item.supplierName}}">{{item.code || ''}} · {{item.supplierName}}</view>
+          <view class="goods-card-spec">
+            {{item.specWeight || '-'}} · {{item.specCount || '-'}}
+          </view>
+          <view class="goods-card-desc" wx:if="{{item.description}}">{{item.description}}</view>
+          <view class="goods-card-price">
+            <text class="price-symbol">¥</text>
+            <text class="price-num">{{item.price}}</text>
+            <text class="price-unit">/{{item.unit}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加减步进器 -->
+      <view class="stepper">
+        <view class="stepper-btn sub {{cartQty[item._id] ? 'show' : ''}}"
+          bindtap="onSub" data-idx="{{index}}">−</view>
+        <input wx:if="{{cartQty[item._id]}}" class="stepper-num-input" type="digit"
+          value="{{cartQty[item._id]}}" bindinput="onStepperInput" data-idx="{{index}}" />
+        <view class="stepper-btn add" bindtap="onAdd" data-idx="{{index}}">+</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-block" wx:if="{{!goodsList.length}}">
+    <view class="empty-ico">📦</view>
+    <view>暂无货品</view>
+  </view>
+
+  <!-- 底部占位：tabbar 约 100rpx + 安全区 + 悬浮按钮余量 -->
+  <view style="height:calc(180rpx + env(safe-area-inset-bottom));"></view>
+
+  <!-- 悬浮购物车入口按钮 -->
+  <view class="float-cart" bindtap="goToCart">
+    <text class="float-cart-icon">🛒</text>
+    <view class="float-cart-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+  </view>
+
+  <tabbar current="purchase"></tabbar>
+</view>

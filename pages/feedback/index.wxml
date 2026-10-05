@@ -1,0 +1,40 @@
+<view class="fb-page">
+  <!-- 说明 -->
+  <view class="card">
+    <view style="font-size:26rpx;color:var(--text-2);line-height:1.7;">
+      感谢您的反馈！请描述您遇到的问题或建议，我们会尽快处理。
+    </view>
+  </view>
+
+  <!-- 类型选择 -->
+  <view class="card">
+    <view class="form-label">反馈类型</view>
+    <view class="type-row">
+      <view wx:for="{{types}}" wx:key="id"
+        class="type-chip {{type === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}" bindtap="onTypeTap">
+        <text>{{item.icon}} {{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容 -->
+  <view class="card">
+    <view class="form-group">
+      <view class="form-label">反馈内容 <text style="color:var(--danger);">*</text></view>
+      <textarea class="form-textarea fb-textarea" value="{{content}}" bindinput="onContentInput"
+        placeholder="请尽量详细描述问题（如操作步骤、出现的错误提示等），便于我们定位。最多2000字。"
+        maxlength="2000" />
+    </view>
+    <view class="form-group" style="margin-bottom:0;">
+      <view class="form-label">联系方式（选填）</view>
+      <input class="form-input" value="{{contact}}" bindinput="onContactInput"
+        placeholder="手机号或微信号，方便我们回复您" maxlength="50" />
+    </view>
+  </view>
+
+  <!-- 提交 -->
+  <view style="padding:0 24rpx 40rpx;">
+    <view class="btn btn-primary btn-lg btn-block" bindtap="onSubmit">提交反馈</view>
+  </view>
+</view>

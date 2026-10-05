@@ -1,0 +1,4 @@
+{
+  "usingComponents": { "tabbar": "/components/tabbar/tabbar" },
+  "navigationBarTitleText": "供货商列表"
+}

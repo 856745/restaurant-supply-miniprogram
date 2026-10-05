@@ -1,0 +1,253 @@
+<view class="fix-top"></view>
+
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <text class="search-ico">🔍</text>
+  <input placeholder="搜索名称、地址或电话" value="{{keyword}}" bindinput="onSearch" />
+</view>
+
+<view class="card" style="background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border-radius:24rpx;">
+  <view style="font-size:36rpx;font-weight:700;">店铺与供货商管理</view>
+</view>
+
+<!-- Tab切换 -->
+<view style="display:flex;margin:20rpx 24rpx;background:#fff;border-radius:40rpx;padding:6rpx;box-shadow:0 2rpx 8rpx rgba(15,23,42,.04);">
+  <view style="flex:1;text-align:center;padding:16rpx;border-radius:36rpx;font-size:28rpx;font-weight:600;{{tab === 'stores' ? 'background:#0f766e;color:#fff;' : 'color:#64748b;'}}" bindtap="switchTab" data-tab="stores">店铺管理</view>
+  <view style="flex:1;text-align:center;padding:16rpx;border-radius:36rpx;font-size:28rpx;font-weight:600;{{tab === 'suppliers' ? 'background:#ea580c;color:#fff;' : 'color:#64748b;'}}" bindtap="switchTab" data-tab="suppliers">供货商管理</view>
+</view>
+
+<!-- 店铺列表 -->
+<view wx:if="{{tab === 'stores'}}">
+  <view class="card">
+    <view style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16rpx;">
+      <text style="font-weight:700;">店铺 ({{stores.length}})</text>
+      <view class="btn btn-sm btn-primary" bindtap="addStore">+ 新增</view>
+    </view>
+    <view wx:for="{{stores}}" wx:key="_id" style="padding:20rpx 0;border-bottom:1rpx solid #f1f5f9;">
+      <view style="display:flex;justify-content:space-between;align-items:center;">
+        <view style="flex:1;">
+          <view style="font-weight:600;font-size:30rpx;">🏪 {{item.name}}</view>
+          <view style="font-size:24rpx;color:#94a3b8;margin-top:4rpx;">{{item.address || '未设置地址'}}</view>
+          <view style="font-size:24rpx;color:#94a3b8;" wx:if="{{item.phone}}">📞 {{item.phone}}</view>
+        </view>
+        <view style="display:flex;gap:12rpx;">
+          <view class="btn btn-sm btn-outline" bindtap="editStore" data-id="{{item._id}}">编辑</view>
+          <view class="btn btn-sm btn-outline" style="background:#fee2e2;color:#ef4444;" bindtap="deleteStore" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 供货商列表 -->
+<view wx:if="{{tab === 'suppliers'}}">
+  <view class="card">
+    <view style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16rpx;">
+      <text style="font-weight:700;">供货商 ({{suppliers.length}})</text>
+      <view style="display:flex;gap:12rpx;">
+        <view class="btn btn-sm" style="background:#fef3c7;color:#d97706;" bindtap="onSupplierImportTap">📥 导入</view>
+        <view class="btn btn-sm btn-warning" bindtap="addSupplier">+ 新增</view>
+      </view>
+    </view>
+    <view wx:for="{{suppliers}}" wx:key="_id" style="padding:20rpx 0;border-bottom:1rpx solid #f1f5f9;">
+      <view style="display:flex;justify-content:space-between;align-items:center;">
+        <view style="flex:1;">
+          <view style="font-weight:600;font-size:30rpx;">🏭 {{item.name}}</view>
+          <view style="font-size:24rpx;color:#94a3b8;margin-top:4rpx;">👤 {{item.contact || '未设置联系人'}}</view>
+          <view style="font-size:24rpx;color:#94a3b8;">📞 {{item.phone}}</view>
+          <view style="display:flex;flex-wrap:wrap;gap:8rpx;margin-top:8rpx;">
+            <view wx:if="{{item.minOrderAmount > 0}}" style="padding:4rpx 12rpx;border-radius:6rpx;font-size:20rpx;background:#fef3c7;color:#92400e;">起送¥{{item.minOrderAmount}}</view>
+            <view style="padding:4rpx 12rpx;border-radius:6rpx;font-size:20rpx;background:#e0f2fe;color:#075985;">
+              {{item.settlementType === 'current' ? '现结' : item.settlementType === 'prepay' ? '先款后货' : '月结'}}
+            </view>
+            <view wx:if="{{item.couponType === 'fixed'}}" style="padding:4rpx 12rpx;border-radius:6rpx;font-size:20rpx;background:#fce7f3;color:#9d174d;">优惠券-¥{{item.couponValue}}</view>
+            <view wx:if="{{item.couponType === 'percent'}}" style="padding:4rpx 12rpx;border-radius:6rpx;font-size:20rpx;background:#fce7f3;color:#9d174d;">{{item.couponValue}}折</view>
+            <view wx:if="{{item.visibleStores && item.visibleStores.length}}" style="padding:4rpx 12rpx;border-radius:6rpx;font-size:20rpx;background:#f0fdf4;color:#166534;">限{{item.visibleStores.length}}店</view>
+          </view>
+        </view>
+        <view style="display:flex;gap:12rpx;">
+          <view class="btn btn-sm btn-outline" bindtap="editSupplier" data-id="{{item._id}}">编辑</view>
+          <view class="btn btn-sm btn-outline" style="background:#fee2e2;color:#ef4444;" bindtap="deleteSupplier" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 编辑弹窗 -->
+<view class="modal-mask" wx:if="{{showModal}}">
+  <view class="modal-overlay" bindtap="closeModal"></view>
+  <view class="modal-body">
+    <view class="modal-title">{{modalTitle}}</view>
+    <view class="form-group">
+      <view class="form-label">名称 *</view>
+      <input class="form-input" value="{{form.name}}" data-field="name" bindinput="onFormChange" placeholder="请输入名称" />
+    </view>
+    <block wx:if="{{tab === 'stores'}}">
+      <view class="form-group">
+        <view class="form-label">地址</view>
+        <input class="form-input" value="{{form.address}}" data-field="address" bindinput="onFormChange" placeholder="请输入地址" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">电话</view>
+        <input class="form-input" value="{{form.phone}}" data-field="phone" bindinput="onFormChange" placeholder="请输入电话" />
+      </view>
+    </block>
+    <block wx:else>
+      <view class="form-group">
+        <view class="form-label">联系人</view>
+        <input class="form-input" value="{{form.contact}}" data-field="contact" bindinput="onFormChange" placeholder="请输入联系人" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">电话 <text style="color:#94a3b8;font-size:22rpx;">（同时作为登录手机号）</text></view>
+        <input class="form-input" value="{{form.phone}}" data-field="phone" bindinput="onFormChange" placeholder="请输入电话" />
+      </view>
+      <view wx:if="{{!form._id}}" style="padding:12rpx 16rpx;background:#f0fdf4;border-radius:8rpx;font-size:22rpx;color:#166534;margin-top:-8rpx;margin-bottom:12rpx;">
+        💡 保存后将自动创建登录账号，默认密码 <text style="font-weight:700;">12345678</text>
+      </view>
+      <view class="form-group">
+        <view class="form-label">地址</view>
+        <input class="form-input" value="{{form.address}}" data-field="address" bindinput="onFormChange" placeholder="请输入地址" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">起送价（¥）</view>
+        <input class="form-input" type="digit" value="{{form.minOrderAmount}}" data-field="minOrderAmount" bindinput="onFormChange" placeholder="0 表示无起送价限制" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">结算方式</view>
+        <picker bindchange="onSettlementChange" range="{{['月结','现结','先款后货']}}">
+          <view class="form-input" style="display:flex;align-items:center;justify-content:space-between;">
+            <text>{{form.settlementType === 'monthly' ? '月结' : form.settlementType === 'current' ? '现结' : form.settlementType === 'prepay' ? '先款后货' : '请选择'}}</text>
+            <text style="color:#94a3b8;">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="form-label">优惠券</view>
+        <picker bindchange="onCouponTypeChange" range="{{['无','固定金额减免','百分比折扣']}}">
+          <view class="form-input" style="display:flex;align-items:center;justify-content:space-between;">
+            <text>{{form.couponType === 'none' ? '无' : form.couponType === 'fixed' ? '固定金额减免' : form.couponType === 'percent' ? '百分比折扣' : '请选择'}}</text>
+            <text style="color:#94a3b8;">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="form-group" wx:if="{{form.couponType !== 'none'}}">
+        <view class="form-label">{{form.couponType === 'fixed' ? '减免金额（¥）' : '折扣比例（%）'}}</view>
+        <input class="form-input" type="digit" value="{{form.couponValue}}" data-field="couponValue" bindinput="onFormChange" placeholder="{{form.couponType === 'fixed' ? '如：10' : '如：95表示95折'}}" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">门店可见性</view>
+        <view style="font-size:24rpx;color:#94a3b8;margin-bottom:12rpx;">不选则所有门店可见，选择后仅选中门店可见</view>
+        <view style="display:flex;flex-wrap:wrap;gap:12rpx;">
+          <view wx:for="{{allStores}}" wx:key="_id"
+            style="padding:12rpx 24rpx;border-radius:8rpx;font-size:24rpx;border:1rpx solid #e2e8f0;{{form.visibleStores && form.visibleStores.indexOf(item._id) > -1 ? 'background:#0f766e;color:#fff;border-color:#0f766e;' : 'background:#fff;color:#64748b;'}}"
+            bindtap="toggleStoreVisible" data-id="{{item._id}}">{{item.name}}</view>
+        </view>
+        <view wx:if="{{form.visibleStores && form.visibleStores.length}}" style="margin-top:12rpx;font-size:24rpx;color:#0f766e;" bindtap="clearStoreVisible">清除限制（所有门店可见）</view>
+      </view>
+    </block>
+    <view class="modal-actions">
+      <view class="btn btn-outline" bindtap="closeModal">取消</view>
+      <view class="btn btn-primary" bindtap="save">保存</view>
+    </view>
+  </view>
+</view>
+
+<!-- 供货商粘贴降级弹窗 -->
+<view class="modal-mask" wx:if="{{showSupplierPasteFallback}}">
+  <view class="modal-overlay" bindtap="closeSupplierPasteFallback"></view>
+  <view class="modal-body" style="max-height:85vh;">
+    <view class="modal-title">粘贴表格内容</view>
+    <view style="background:#f8fafc;border-radius:12rpx;padding:16rpx;margin-bottom:20rpx;font-size:22rpx;color:#64748b;line-height:1.6;">
+      电脑 Excel/WPS 中选中所有行（含表头）复制，粘贴到下方。支持 Tab 分隔（Excel复制）和逗号分隔（CSV文本）。
+    </view>
+    <textarea style="width:100%;height:400rpx;border:2rpx solid #e2e8f0;border-radius:12rpx;padding:16rpx;font-size:26rpx;box-sizing:border-box;"
+      placeholder="在此粘贴表格内容..."
+      value="{{supplierPasteText}}" bindinput="onSupplierPasteTextInput" />
+    <view style="display:flex;gap:16rpx;margin-top:20rpx;">
+      <view class="btn btn-outline" style="flex:1;text-align:center;padding:20rpx;border-radius:12rpx;" bindtap="closeSupplierPasteFallback">取消</view>
+      <view class="btn" style="flex:1;background:#ea580c;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-weight:600;"
+        bindtap="submitSupplierPasteText">解析并预览</view>
+    </view>
+  </view>
+</view>
+
+<!-- 供货商批量导入弹窗 -->
+<view class="modal-mask" wx:if="{{showSupplierImport}}">
+  <view class="modal-overlay" bindtap="closeSupplierImport"></view>
+  <view class="modal-body" style="max-height:85vh;">
+    <view class="modal-title">批量导入供货商</view>
+
+    <!-- 操作步骤 -->
+    <view wx:if="{{supplierImportPreview.length === 0 && !supplierImporting}}" style="margin-bottom:24rpx;">
+      <view style="background:#f8fafc;border-radius:12rpx;padding:24rpx;margin-bottom:20rpx;">
+        <view style="font-size:26rpx;font-weight:700;color:#ea580c;margin-bottom:16rpx;">使用步骤</view>
+        <view style="font-size:24rpx;color:#64748b;line-height:1.8;">
+          <view>1. 点击「下载模板」打开文件</view>
+          <view>2. 点右上角 ··· 转发到文件传输助手</view>
+          <view>3. 电脑 Excel/WPS 编辑，一行一个供货商</view>
+          <view>4. 格式：名称 / 联系人 / 电话 / 地址</view>
+          <view>5. 保存后发回微信，选择文件导入</view>
+        </view>
+      </view>
+
+      <view class="btn" style="background:#ea580c;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-size:28rpx;margin-bottom:16rpx;display:flex;width:100%;box-sizing:border-box;"
+        bindtap="downloadSupplierTemplate">📥 下载模板</view>
+      <view class="btn" style="background:#0f766e;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-size:28rpx;display:flex;width:100%;box-sizing:border-box;"
+        bindtap="chooseSupplierFile">📁 选择文件</view>
+    </view>
+
+    <!-- 预览数据 -->
+    <view wx:if="{{supplierImportPreview.length > 0 && !supplierImporting}}">
+      <view style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16rpx;">
+        <view style="font-size:26rpx;font-weight:700;color:#1e293b;">
+          已选 {{supplierImportSelectedCount}}/{{supplierImportPreview.length}} 条
+        </view>
+        <view style="display:flex;gap:16rpx;">
+          <text style="font-size:24rpx;color:#ea580c;" bindtap="supplierImportToggleAll">{{supplierImportAllSelected ? '取消全选' : '全选'}}</text>
+          <text style="font-size:24rpx;color:#ea580c;" bindtap="chooseSupplierFile">重新选择</text>
+        </view>
+      </view>
+
+      <scroll-view scroll-y style="max-height:500rpx;border:2rpx solid #e2e8f0;border-radius:12rpx;margin-bottom:20rpx;">
+        <view wx:for="{{supplierImportPreview}}" wx:key="idx"
+          style="display:flex;align-items:center;padding:16rpx 20rpx;border-bottom:1rpx solid #f1f5f9;{{item.selected === false ? 'opacity:0.35;' : ''}}">
+          <view style="width:40rpx;height:40rpx;border-radius:50%;border:2rpx solid #cbd5e1;display:flex;align-items:center;justify-content:center;margin-right:12rpx;flex-shrink:0;font-size:22rpx;{{item.selected !== false ? 'background:#ea580c;border-color:#ea580c;color:#fff;' : ''}}"
+            bindtap="supplierImportToggleItem" data-idx="{{item.idx}}">
+            <text wx:if="{{item.selected !== false}}">✓</text>
+          </view>
+          <view style="flex:1;overflow:hidden;">
+            <view style="font-size:26rpx;font-weight:600;color:{{item.valid ? '#1e293b' : '#ef4444'}};">🏭 {{item.name}}</view>
+            <view style="font-size:22rpx;color:#94a3b8;">
+              <text wx:if="{{item.contact}}">👤 {{item.contact}} · </text>
+              {{item.phone}} · {{item.address || '未填地址'}}
+            </view>
+          </view>
+          <view style="font-size:20rpx;padding:4rpx 12rpx;border-radius:8rpx;background:{{item.valid ? '#dcfce7' : '#fee2e2'}};color:{{item.valid ? '#16a34a' : '#ef4444'}};white-space:nowrap;">
+            {{item.valid ? '有效' : '无效'}}
+          </view>
+        </view>
+      </scroll-view>
+
+      <view style="display:flex;gap:16rpx;">
+        <view class="btn btn-outline" style="flex:1;text-align:center;padding:20rpx;border-radius:12rpx;" bindtap="closeSupplierImport">取消</view>
+        <view class="btn" style="flex:1;background:#ea580c;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-weight:600;"
+          bindtap="confirmSupplierImport">确认导入</view>
+      </view>
+    </view>
+
+    <!-- 导入中 -->
+    <view wx:if="{{supplierImporting}}" style="text-align:center;padding:40rpx 0;">
+      <view style="font-size:32rpx;font-weight:700;color:#ea580c;margin-bottom:16rpx;">正在导入...</view>
+      <view style="font-size:24rpx;color:#94a3b8;">请勿关闭页面</view>
+    </view>
+
+    <!-- 导入结果 -->
+    <view wx:if="{{supplierImportProgress && !supplierImporting}}" style="text-align:center;padding:20rpx 0;">
+      <view style="font-size:30rpx;font-weight:700;color:#16a34a;margin-bottom:16rpx;">{{supplierImportProgress}}</view>
+      <view class="btn btn-outline" style="text-align:center;padding:16rpx 40rpx;border-radius:12rpx;display:inline-block;" bindtap="closeSupplierImport">关闭</view>
+    </view>
+  </view>
+</view>
+
+<tabbar current="stores" />

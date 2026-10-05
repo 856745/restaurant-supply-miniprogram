@@ -1,0 +1,118 @@
+<view class="manager-theme fix-top cart-page">
+  <!-- 空状态 -->
+  <view class="empty-block" wx:if="{{isEmpty}}">
+    <view class="empty-ico">🛒</view>
+    <view>购物车是空的</view>
+    <view class="btn btn-success" style="background:#0f766e;margin-top:32rpx;padding:20rpx 56rpx;border-radius:40rpx;"
+      bindtap="goPurchase">去采购</view>
+  </view>
+
+  <!-- 购物车列表 -->
+  <block wx:if="{{!isEmpty}}">
+    <!-- 搜索栏 -->
+    <view class="search-bar">
+      <text class="search-ico">🔍</text>
+      <input placeholder="搜索购物车货品" value="{{keyword}}" bindinput="onSearch" />
+    </view>
+
+    <view class="cart-groups">
+      <view class="cart-group" wx:for="{{groups}}" wx:for-item="grp" wx:key="supplierId">
+        <!-- 供应商标题 -->
+        <view class="group-header">
+          <view style="display:flex;align-items:center;gap:8rpx;">
+            <text class="group-supplier">{{grp.supplierName}}</text>
+            <text style="font-size:20rpx;padding:2rpx 8rpx;border-radius:4rpx;background:#e0f2fe;color:#075985;">
+              {{grp.settlementType === 'current' ? '现结' : grp.settlementType === 'prepay' ? '先款后货' : '月结'}}
+            </text>
+          </view>
+          <text class="group-sub-total">¥{{grp.subTotal}}</text>
+        </view>
+
+        <!-- 起送价警告 -->
+        <view wx:if="{{grp.belowMin}}" style="padding:12rpx 24rpx;background:#fef3c7;color:#92400e;font-size:24rpx;border-radius:8rpx;margin-bottom:8rpx;">
+          ⚠ 未达起送价 ¥{{grp.minOrderAmount}}，还差 ¥{{grp.minOrderAmount - grp.subTotal}}
+        </view>
+
+        <!-- 优惠券信息 -->
+        <view wx:if="{{grp.couponType !== 'none' && grp.discount > 0}}" style="padding:8rpx 24rpx;background:#fce7f3;color:#9d174d;font-size:24rpx;border-radius:8rpx;margin-bottom:8rpx;">
+          🎫 {{grp.couponType === 'fixed' ? '减¥' + grp.couponValue : grp.couponValue + '折'}} · 优惠 ¥{{grp.discount}} · 实付 ¥{{grp.afterDiscount}}
+        </view>
+
+        <!-- 货品项 -->
+        <view class="cart-row" wx:for="{{grp.items}}" wx:for-item="ci" wx:key="goodsId">
+          <view class="cart-check {{ci.selected ? 'checked' : ''}}" bindtap="onToggleItem" data-id="{{ci.goodsId}}">
+            <text wx:if="{{ci.selected}}">✓</text>
+          </view>
+
+          <image wx:if="{{ci.hasImage}}" src="{{ci.image}}" mode="aspectFill" class="cart-row-img" />
+          <view wx:else class="cart-row-avatar">{{ci.icon}}</view>
+
+          <view class="cart-row-info">
+            <view class="cart-row-name">{{ci.name}}</view>
+            <view class="cart-row-spec">{{ci.code || ''}} · {{ci.specWeight}} {{ci.specCount}}</view>
+            <view class="cart-row-price">¥{{ci.price}}/{{ci.unit}}</view>
+          </view>
+
+          <view class="cart-row-stepper">
+            <view class="step-btn sub" bindtap="onSub" data-id="{{ci.goodsId}}">−</view>
+            <input class="step-num-input" type="digit" value="{{ci.qty}}"
+              bindinput="onStepperInput" data-id="{{ci.goodsId}}" />
+            <view class="step-btn add" bindtap="onAdd" data-id="{{ci.goodsId}}">+</view>
+          </view>
+
+          <view class="cart-row-del" bindtap="onDeleteItem" data-id="{{ci.goodsId}}">✕</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="remark-box">
+      <input placeholder="备注（选填）" value="{{remark}}" bindinput="onRemarkInput" />
+    </view>
+
+    <!-- 底部占位：结算栏 100rpx + tabbar 约 100rpx + 安全区 -->
+    <view style="height:calc(240rpx + env(safe-area-inset-bottom));"></view>
+
+    <!-- 底部结算栏 -->
+    <view class="settle-bar">
+      <view class="settle-check {{allSelected ? 'checked' : ''}}" bindtap="onToggleAll">
+        <text wx:if="{{allSelected}}">✓</text>
+      </view>
+      <text style="font-size:26rpx;color:#64748b;margin-left:8rpx;" bindtap="onToggleAll">全选</text>
+      <view class="settle-clear" bindtap="onClearAll">清空</view>
+      <view class="settle-total">
+        合计 <text class="settle-amount">¥{{selectedTotal}}</text>
+      </view>
+      <view class="settle-btn {{submitting ? 'disabled' : ''}}" bindtap="onSettle">
+        {{submitting ? '提交中...' : '结算(' + selectedCount + ')'}}
+      </view>
+    </view>
+    <!-- 收货确认弹窗 -->
+    <view class="confirm-mask" wx:if="{{showConfirm}}">
+      <view class="confirm-overlay" catchtap="cancelConfirm"></view>
+      <scroll-view scroll-y class="confirm-panel">
+        <view class="confirm-title">确认收货信息</view>
+        <view class="confirm-field">
+          <text class="confirm-label">收货人</text>
+          <input class="confirm-input" placeholder="请输入收货人姓名" value="{{receiver}}" bindinput="onReceiverInput" />
+        </view>
+        <view class="confirm-field">
+          <text class="confirm-label">联系电话</text>
+          <input class="confirm-input" type="number" placeholder="请输入手机号" value="{{receiverPhone}}" bindinput="onPhoneInput" />
+        </view>
+        <view class="confirm-field">
+          <text class="confirm-label">收货地址</text>
+          <textarea class="confirm-textarea" placeholder="请输入详细收货地址" value="{{deliveryAddress}}" bindinput="onAddressInput" auto-height maxlength="100" />
+        </view>
+        <view class="confirm-actions">
+          <view class="confirm-btn cancel" bindtap="cancelConfirm">取消</view>
+          <view class="confirm-btn ok {{submitting ? 'disabled' : ''}}" bindtap="confirmSubmit">
+            {{submitting ? '提交中...' : '确认下单'}}
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </block>
+
+  <tabbar current="cart"></tabbar>
+</view>

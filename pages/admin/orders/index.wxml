@@ -1,0 +1,49 @@
+<view class="fix-top"></view>
+
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <text class="search-ico">🔍</text>
+  <input placeholder="搜索订单号、店铺、供货商或货品" value="{{keyword}}" bindinput="onSearch" />
+  <text style="font-size:26rpx;color:#4f46e5;font-weight:600;flex-shrink:0;margin-left:16rpx;" bindtap="exportOrders">📥导出</text>
+</view>
+
+<view class="card" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;border-radius:24rpx;">
+  <view style="font-size:36rpx;font-weight:700;">全局订单</view>
+  <view style="font-size:24rpx;opacity:.8;margin-top:8rpx;">所有店铺的采购订单</view>
+</view>
+
+<!-- 状态筛选 -->
+<view class="cat-bar">
+  <view class="cat-tag {{filterStatus === '' ? 'active' : ''}}" bindtap="filterStatus" data-status="">全部</view>
+  <view class="cat-tag {{filterStatus === 'pending' ? 'active' : ''}}" bindtap="filterStatus" data-status="pending">待确认</view>
+  <view class="cat-tag {{filterStatus === 'accepted' ? 'active' : ''}}" bindtap="filterStatus" data-status="accepted">已接单</view>
+  <view class="cat-tag {{filterStatus === 'shipped' ? 'active' : ''}}" bindtap="filterStatus" data-status="shipped">配送中</view>
+  <view class="cat-tag {{filterStatus === 'partial' ? 'active' : ''}}" bindtap="filterStatus" data-status="partial">部分收货</view>
+  <view class="cat-tag {{filterStatus === 'received' ? 'active' : ''}}" bindtap="filterStatus" data-status="received">已收货</view>
+</view>
+
+<!-- 订单列表 -->
+<view class="card" wx:if="{{orders.length > 0}}">
+  <view wx:for="{{orders}}" wx:key="_id" style="padding:20rpx 0;border-bottom:1rpx solid #f1f5f9;" bindtap="viewDetail" data-id="{{item._id}}">
+    <view style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8rpx;">
+      <view style="font-weight:700;font-size:28rpx;">{{item.no}}</view>
+      <view class="tag tag-{{item.status}}">{{statusLabels[item.status] || item.status}}</view>
+    </view>
+    <view style="font-size:24rpx;color:#94a3b8;">{{item.storeName}} → {{item.supplierName}}</view>
+    <view style="display:flex;justify-content:space-between;align-items:center;margin-top:8rpx;">
+      <view style="font-size:24rpx;color:#94a3b8;">{{item.items.length}}种货品 · {{item.createTime}}</view>
+      <view style="display:flex;align-items:center;gap:16rpx;">
+        <view style="font-weight:700;color:#ef4444;font-size:30rpx;">¥{{item.total}}</view>
+        <view wx:if="{{item.status === 'pending'}}" class="btn btn-sm btn-danger" style="background:#ef4444;color:#fff;" catchtap="cancelOrder" data-id="{{item._id}}">取消</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view wx:else class="card"><view class="empty-block"><view class="empty-ico">📋</view><view>暂无订单</view></view></view>
+
+<!-- 加载更多 -->
+<view wx:if="{{loadingMore}}" class="load-more">加载中...</view>
+<view wx:elif="{{!hasMore && orders.length > 0}}" class="load-more load-end">— 已加载全部 —</view>
+
+<tabbar current="orders" />

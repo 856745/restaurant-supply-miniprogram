@@ -1,0 +1,65 @@
+<view class="manager-theme fix-top">
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索货品名称" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+  <view class="cat-bar">
+    <view class="cat-tag {{activeCat === item.id ? 'active' : ''}}"
+      wx:for="{{catList}}" wx:key="id"
+      bindtap="onCatTap" data-id="{{item.id}}"
+      style="{{activeCat === item.id ? 'background:#0f766e;color:#fff;' : ''}}">{{item.name}}</view>
+  </view>
+  <view class="card">
+    <view wx:if="{{filteredGoods.length === 0}}" class="empty-block">
+      <view class="empty-ico">📦</view><view>暂无货品</view>
+    </view>
+    <view wx:for="{{filteredGoods}}" wx:key="_id" class="goods-item" bindtap="onGoodsTap" data-idx="{{index}}">
+      <image wx:if="{{item.hasImage}}" src="{{item.image}}" mode="aspectFill" class="goods-thumb" />
+      <view wx:else class="goods-avatar">{{item.icon}}</view>
+      <view class="goods-info">
+        <view class="goods-name">{{item.name}}</view>
+        <view class="goods-meta">{{item.catName}} · {{item.specWeight || item.unit}}</view>
+      </view>
+      <view style="text-align:right;margin-left:16rpx;white-space:nowrap;">
+        <view style="font-size:28rpx;font-weight:700;color:var(--text);">¥{{item.price}}</view>
+        <view style="font-size:24rpx;color:var(--text-2);">/{{item.unit}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view style="position:fixed;right:40rpx;bottom:180rpx;width:100rpx;height:100rpx;border-radius:50%;background:#0f766e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:48rpx;box-shadow:0 8rpx 24rpx rgba(15,118,110,.3);z-index:100;" bindtap="onAddTap">＋</view>
+
+  <view class="modal-mask" wx:if="{{showModal}}">
+    <view class="modal-overlay" bindtap="closeModal"></view>
+    <view class="modal-body">
+      <view class="modal-title">{{modalTitle}}</view>
+      <view class="form-group">
+        <view class="form-label">货品图片</view>
+        <view wx:if="{{form.image}}" style="position:relative;display:inline-block;">
+          <image src="{{form.image}}" mode="aspectFill" style="width:160rpx;height:160rpx;border-radius:12rpx;" />
+          <view style="position:absolute;top:-12rpx;right:-12rpx;width:40rpx;height:40rpx;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24rpx;" bindtap="onRemoveImage">✕</view>
+        </view>
+        <view wx:else style="width:160rpx;height:160rpx;border:2rpx dashed #cbd5e1;border-radius:12rpx;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;" bindtap="onChooseImage">
+          <view style="font-size:40rpx;">📷</view><view style="font-size:22rpx;margin-top:4rpx;">点击上传</view>
+        </view>
+      </view>
+      <view class="form-group"><view class="form-label">名称</view><input class="form-input" value="{{form.name}}" bindinput="onFormChange" data-field="name" placeholder="货品名称" /></view>
+      <view class="form-group"><view class="form-label">分类</view><picker range="{{catPicker}}" range-key="name" bindchange="onPickerCat"><view class="form-input" style="display:flex;align-items:center;">{{form.categoryName || '请选择'}}</view></picker></view>
+      <view class="form-group"><view class="form-label">单位</view><input class="form-input" value="{{form.unit}}" bindinput="onFormChange" data-field="unit" placeholder="如：斤、袋、箱" /></view>
+      <view style="background:#f0fdfa;border-radius:12rpx;padding:16rpx;margin-bottom:24rpx;">
+        <view style="font-size:26rpx;font-weight:700;color:#0f766e;margin-bottom:16rpx;">📏 规格信息</view>
+        <view style="display:flex;gap:16rpx;">
+          <view style="flex:1;"><view class="form-label">规格重量</view><input class="form-input" value="{{form.specWeight}}" bindinput="onFormChange" data-field="specWeight" placeholder="如：500g" /></view>
+          <view style="flex:1;"><view class="form-label">规格数量</view><input class="form-input" value="{{form.specCount}}" bindinput="onFormChange" data-field="specCount" placeholder="如：约15只" /></view>
+        </view>
+      </view>
+      <view class="form-group"><view class="form-label">单价 (元)</view><input class="form-input" type="digit" value="{{form.price}}" bindinput="onFormChange" data-field="price" placeholder="0" /></view>
+      <view class="form-group"><view class="form-label">说明</view><textarea class="form-textarea" value="{{form.description}}" bindinput="onFormChange" data-field="description" placeholder="货品描述、产地、备注等" /></view>
+      <view class="form-group"><view class="form-label">供货商</view><picker range="{{allSuppliers}}" range-key="name" bindchange="onPickerSupplier"><view class="form-input" style="display:flex;align-items:center;">{{form.supplierName || '请选择'}}</view></picker></view>
+      <view class="modal-actions"><view class="btn btn-outline" bindtap="closeModal">取消</view><view class="btn btn-success" style="background:#0f766e;" bindtap="saveGoods">保存</view></view>
+      <view wx:if="{{form._id}}" style="margin-top:16rpx;text-align:center;"><view class="btn btn-danger btn-sm" bindtap="deleteGoods">删除货品</view></view>
+    </view>
+  </view>
+
+  <tabbar current="goods"></tabbar>
+</view>

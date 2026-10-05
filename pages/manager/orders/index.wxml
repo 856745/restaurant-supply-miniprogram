@@ -1,0 +1,83 @@
+<view class="manager-theme fix-top orders-page">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索订单号、供货商或货品" value="{{keyword}}" bindinput="onSearch" />
+    <text style="font-size:26rpx;color:#0f766e;font-weight:600;flex-shrink:0;margin-left:16rpx;" bindtap="exportOrders">📥导出</text>
+  </view>
+
+  <!-- 状态筛选 Tab -->
+  <view class="status-tabs">
+    <scroll-view scroll-x class="status-scroll">
+      <view class="status-tab {{activeStatus === item.id ? 'active' : ''}}"
+        wx:for="{{statusTabs}}" wx:key="id"
+        bindtap="onStatusTap" data-id="{{item.id}}">
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 超时提醒横幅 -->
+  <view class="stale-banner" wx:if="{{staleCount > 0}}" bindtap="onStatusTap" data-id="pending">
+    <text>⚠️ 有 {{staleCount}} 笔订单超时未接单，建议联系供应商催单 ›</text>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="orders-list" wx:if="{{filteredOrders.length}}">
+    <view wx:for="{{filteredOrders}}" wx:key="_id" class="order-card"
+      bindtap="viewDetail" data-id="{{item._id}}">
+
+      <!-- 同批次标记 -->
+      <view class="batch-badge" wx:if="{{item.batchNo && batchMap[item.batchNo] > 1}}">
+        同批次采购（共{{batchMap[item.batchNo]}}个订单）
+      </view>
+
+      <!-- 订单头部 -->
+      <view class="order-card-header">
+        <view class="order-no">{{item.no}}</view>
+        <view class="stale-badge" wx:if="{{item.isStale}}">超时</view>
+        <view class="tag {{item.tagClass}}">{{item.statusName}}</view>
+      </view>
+
+      <!-- 供应商+时间 -->
+      <view class="order-card-sub">
+        <text class="order-supplier">{{item.supplierName}}</text>
+        <text class="order-time">{{item.createTime}}</text>
+      </view>
+
+      <!-- 摘要行 -->
+      <view class="order-card-summary">
+        <view class="order-items-text">
+          <text wx:for="{{item.items}}" wx:key="goodsId" wx:for-item="oi">
+            {{oi.name}}×{{oi.qty}}<text wx:if="{{index < item.items.length - 1}}">、</text>
+          </text>
+        </view>
+        <view class="order-total">¥{{item.total}}</view>
+      </view>
+
+      <!-- 操作按钮（阻止冒泡） -->
+      <view class="order-card-actions" catchtap="">
+        <view class="btn btn-danger btn-sm" wx:if="{{item.status==='pending'}}"
+          catchtap="cancelOrder" data-id="{{item._id}}">取消订单</view>
+        <view class="btn btn-success btn-sm" wx:if="{{item.status==='shipped' || item.status==='partial'}}"
+          style="background:#0f766e;" catchtap="receiveOrder" data-id="{{item._id}}">
+          {{item.status === 'partial' ? '继续收货' : '确认收货'}}
+        </view>
+        <view class="btn btn-ghost btn-sm">查看详情 ›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-block" wx:if="{{!filteredOrders.length && !loadingMore}}">
+    <view class="empty-ico">📋</view>
+    <view>暂无订单</view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view wx:if="{{loadingMore}}" class="load-more">加载中...</view>
+  <view wx:elif="{{!hasMore && filteredOrders.length > 0}}" class="load-more load-end">— 已加载全部 —</view>
+
+  <view style="height:120rpx;"></view>
+  <tabbar current="orders"></tabbar>
+</view>

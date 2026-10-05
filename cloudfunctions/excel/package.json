@@ -1,0 +1,9 @@
+{
+  "name": "excel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "xlsx": "^0.18.5"
+  }
+}

@@ -1,0 +1,117 @@
+<view class="fix-top"></view>
+
+<view class="card" style="background:linear-gradient(135deg,#ea580c,#f97316);color:#fff;border-radius:24rpx;">
+  <view style="display:flex;justify-content:space-between;align-items:center;">
+    <view>
+      <view style="font-size:36rpx;font-weight:700;">货品目录</view>
+      <view style="font-size:24rpx;opacity:.85;margin-top:8rpx;">管理供货货品与规格</view>
+    </view>
+    <view style="width:80rpx;height:80rpx;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:44rpx;" bindtap="openAdd">+</view>
+  </view>
+</view>
+
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <text class="search-ico">🔍</text>
+  <input placeholder="搜索货品名称" value="{{keyword}}" bindinput="onSearch" confirm-type="search" />
+</view>
+
+<!-- 分类筛选 -->
+<view class="cat-bar">
+  <view class="cat-tag {{filterCategory === '' ? 'active' : ''}}" bindtap="filterCategory" data-id="">全部</view>
+  <view wx:for="{{categories}}" wx:key="id" class="cat-tag {{filterCategory === item.id ? 'active' : ''}}" bindtap="filterCategory" data-id="{{item.id}}">{{item.icon}} {{item.name}}</view>
+</view>
+
+<!-- 货品列表 -->
+<view class="card" wx:if="{{goods.length > 0}}">
+  <view wx:for="{{goods}}" wx:key="_id" class="goods-item" bindtap="openEdit" data-item="{{item}}">
+    <image wx:if="{{item.hasImage}}" src="{{item.image}}" mode="aspectFill" class="goods-thumb" />
+    <view wx:else class="goods-avatar">{{item.categoryIcon}}</view>
+    <view class="goods-info">
+      <view class="goods-name">{{item.name}}</view>
+      <view class="goods-meta">{{item.categoryName}} · {{item.specWeight || item.unit}} · {{item.specCount || '-'}}</view>
+      <view class="goods-meta" wx:if="{{item.description}}" style="font-size:22rpx;color:var(--text-3);">{{item.description}}</view>
+    </view>
+    <view class="goods-price">¥{{item.price}}</view>
+  </view>
+</view>
+
+<view wx:else class="card">
+  <view class="empty-block">
+    <view class="empty-ico">📦</view>
+    <view>暂无货品，点击右上角 + 添加</view>
+  </view>
+</view>
+
+<!-- 新增/编辑弹窗 -->
+<view wx:if="{{showModal}}" class="modal-mask">
+  <view class="modal-overlay" bindtap="closeModal"></view>
+  <view class="modal-body">
+    <view class="modal-title">{{editForm._id ? '编辑货品' : '新增货品'}}</view>
+
+    <!-- 图片上传 -->
+    <view class="form-group">
+      <text class="form-label">货品图片</text>
+      <view wx:if="{{editForm.image}}" style="position:relative;display:inline-block;">
+        <image src="{{editForm.image}}" mode="aspectFill" style="width:160rpx;height:160rpx;border-radius:12rpx;" />
+        <view style="position:absolute;top:-12rpx;right:-12rpx;width:40rpx;height:40rpx;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24rpx;"
+          bindtap="onRemoveImage">✕</view>
+      </view>
+      <view wx:else style="width:160rpx;height:160rpx;border:2rpx dashed #cbd5e1;border-radius:12rpx;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;"
+        bindtap="onChooseImage">
+        <view style="font-size:40rpx;">📷</view>
+        <view style="font-size:22rpx;margin-top:4rpx;">点击上传</view>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">货品名称</text>
+      <input class="form-input" placeholder="如：猪五花肉" value="{{editForm.name}}" data-field="name" bindinput="onInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">分类</text>
+      <view style="display:flex;flex-wrap:wrap;gap:12rpx;">
+        <view wx:for="{{categories}}" wx:key="id" class="cat-tag {{editForm.category === item.id ? 'active' : ''}}" style="{{editForm.category === item.id ? 'background:#ea580c;' : ''}}" bindtap="pickCategory" data-id="{{item.id}}">{{item.icon}} {{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">计量单位</text>
+      <input class="form-input" placeholder="如：斤、袋、箱、桶" value="{{editForm.unit}}" data-field="unit" bindinput="onInput" />
+    </view>
+
+    <!-- 规格区 -->
+    <view style="background:#fff7ed;border-radius:12rpx;padding:16rpx;margin-bottom:24rpx;">
+      <view style="font-size:26rpx;font-weight:700;color:#ea580c;margin-bottom:16rpx;">📏 规格信息</view>
+      <view style="display:flex;gap:16rpx;">
+        <view style="flex:1;">
+          <text class="form-label">规格重量</text>
+          <input class="form-input" placeholder="如：500g" value="{{editForm.specWeight}}" data-field="specWeight" bindinput="onInput" />
+        </view>
+        <view style="flex:1;">
+          <text class="form-label">规格数量</text>
+          <input class="form-input" placeholder="如：约15只" value="{{editForm.specCount}}" data-field="specCount" bindinput="onInput" />
+        </view>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">参考单价（元/{{editForm.unit || '单位'}}）</text>
+      <input class="form-input" type="digit" placeholder="如：28" value="{{editForm.price}}" data-field="price" bindinput="onInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">说明</text>
+      <textarea class="form-textarea" placeholder="货品描述、产地、备注等" value="{{editForm.description}}" data-field="description" bindinput="onInput" style="width:100%;min-height:100rpx;padding:16rpx 20rpx;border:2rpx solid #e2e8f0;border-radius:12rpx;font-size:28rpx;box-sizing:border-box;" />
+    </view>
+
+    <view class="modal-actions">
+      <view wx:if="{{editForm._id}}" class="btn btn-danger" bindtap="deleteGoods" data-id="{{editForm._id}}">删除</view>
+      <view class="btn btn-outline" bindtap="closeModal">取消</view>
+      <view class="btn btn-primary" style="background:#ea580c;" bindtap="saveGoods">保存</view>
+    </view>
+  </view>
+</view>
+
+<tabbar current="products" />

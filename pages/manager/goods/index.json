@@ -1,0 +1,4 @@
+{
+  "usingComponents": { "tabbar": "/components/tabbar/tabbar" },
+  "navigationBarTitleText": "货品管理"
+}

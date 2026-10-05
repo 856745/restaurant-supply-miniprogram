@@ -1,0 +1,245 @@
+/* ========== 采购页 - 步进器风格 ========== */
+.purchase-page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* ===== 供应商 Tab ===== */
+.supplier-tabs {
+  background: #fff;
+  padding: 16rpx 0;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+.supplier-scroll {
+  white-space: nowrap;
+  padding: 0 24rpx;
+}
+.supplier-tab {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  margin-right: 12rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  background: #f0f0f0;
+  color: #666;
+  transition: all .2s;
+}
+.supplier-tab.active {
+  background: #0f766e;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== 商品种类分类 Tab ===== */
+.cat-tabs {
+  background: #fff;
+  padding: 8rpx 0 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.cat-scroll {
+  white-space: nowrap;
+  padding: 0 24rpx;
+}
+.cat-tab {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  margin-right: 10rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  background: #f5f5f5;
+  color: #666;
+  transition: all .2s;
+}
+.cat-tab.active {
+  background: #e6fffa;
+  color: #0f766e;
+  font-weight: 600;
+  border: 1rpx solid #99e6d6;
+}
+
+/* ===== 货品卡片 ===== */
+.goods-scroll {
+  padding: 16rpx 24rpx;
+}
+.goods-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+}
+.goods-card-inner {
+  display: flex;
+}
+.goods-card-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+.goods-card-avatar {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  background: #f0fdfa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+}
+.goods-card-info {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.goods-card-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #222;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods-card-supplier {
+  font-size: 22rpx;
+  color: #0f766e;
+  background: #e6fffa;
+  display: inline-block;
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+  margin-top: 6rpx;
+  align-self: flex-start;
+}
+.goods-card-spec {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+.goods-card-desc {
+  font-size: 22rpx;
+  color: #bbb;
+  margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods-card-price {
+  margin-top: auto;
+  padding-top: 12rpx;
+}
+.price-symbol {
+  font-size: 24rpx;
+  color: #e53e3e;
+  font-weight: 600;
+}
+.price-num {
+  font-size: 36rpx;
+  color: #e53e3e;
+  font-weight: 700;
+}
+.price-unit {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* ===== 加减步进器 ===== */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16rpx;
+  gap: 0;
+}
+.stepper-btn {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1;
+  transition: all .15s;
+}
+.stepper-btn.add {
+  background: #0f766e;
+  color: #fff;
+}
+.stepper-btn.sub {
+  background: #fff;
+  color: #0f766e;
+  border: 2rpx solid #0f766e;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.stepper-btn.sub.show {
+  opacity: 1;
+}
+.stepper-num {
+  min-width: 60rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #222;
+  padding: 0 8rpx;
+}
+.stepper-num-input {
+  width: 72rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #222;
+  padding: 0 4rpx;
+  border: none;
+  min-height: 48rpx;
+}
+.stepper-num.small {
+  min-width: 40rpx;
+  font-size: 26rpx;
+}
+
+/* ===== 底部购物车栏（已移除，购物车独立页） ===== */
+
+/* ===== 悬浮购物车入口 ===== */
+.float-cart {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #0f766e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 998;
+  box-shadow: 0 8rpx 24rpx rgba(15,118,110,.4);
+}
+.float-cart-icon {
+  font-size: 44rpx;
+}
+.float-cart-badge {
+  position: absolute;
+  top: -6rpx;
+  right: -6rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 18rpx;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8rpx;
+  border: 3rpx solid #fff;
+}

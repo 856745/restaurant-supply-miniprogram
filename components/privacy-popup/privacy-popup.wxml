@@ -1,0 +1,17 @@
+<view wx:if="{{show}}" class="modal-mask">
+  <view class="modal-overlay" bindtap="onClose"></view>
+  <view class="modal-body">
+    <view class="modal-title">隐私政策</view>
+
+    <view class="privacy-text">
+      餐饮供货管理小程序会使用您的手机号和姓名用于账号登录与身份识别。订单数据（采购记录、收货信息）用于正常的供货业务流程。以上信息仅在本小程序内使用，不会提供给第三方。
+    </view>
+
+    <view class="privacy-link" bindtap="onViewContract">查看完整隐私政策 ›</view>
+
+    <view class="modal-actions">
+      <view class="btn btn-outline" bindtap="onDisagree">不同意</view>
+      <view class="btn btn-primary" bindtap="onAgree">同意</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,35 @@
+<view class="msg-page">
+  <!-- 顶部统计 + 全部已读 -->
+  <view class="card" style="display:flex;align-items:center;">
+    <view style="flex:1;">
+      <view style="font-size:30rpx;font-weight:700;">消息中心</view>
+      <view style="font-size:24rpx;color:var(--text-2);margin-top:6rpx;">共 {{total}} 条消息{{unreadCount > 0 ? ' · ' + unreadCount + ' 条未读' : ''}}</view>
+    </view>
+    <view wx:if="{{unreadCount > 0}}" class="btn btn-primary btn-sm" bindtap="markAllRead">全部已读</view>
+  </view>
+
+  <!-- 消息列表 -->
+  <block wx:if="{{messages.length > 0}}">
+    <view wx:for="{{messages}}" wx:key="_id" class="card msg-card"
+      data-id="{{item._id}}" bindtap="onTapMessage" bindlongpress="onDeleteMessage">
+      <view style="display:flex;align-items:flex-start;">
+        <view style="font-size:40rpx;margin-right:16rpx;flex-shrink:0;">{{item.icon}}</view>
+        <view style="flex:1;overflow:hidden;">
+          <view style="display:flex;align-items:center;margin-bottom:8rpx;">
+            <view class="msg-dot {{item.status === 'unread' ? 'unread' : ''}}"></view>
+            <view style="font-size:28rpx;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{item.title}}</view>
+            <text style="font-size:20rpx;color:var(--text-3);margin-left:8rpx;flex-shrink:0;">{{item.timeText}}</text>
+          </view>
+          <view style="font-size:26rpx;color:var(--text-2);line-height:1.6;word-break:break-all;">{{item.content}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="load-more">{{hasMore ? '上拉加载更多' : '已加载全部'}}</view>
+  </block>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty-block">
+    <view class="empty-ico">📭</view>
+    <view>暂无消息</view>
+  </view>
+</view>

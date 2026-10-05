@@ -1,0 +1,42 @@
+/* ========== 供货商报表页 ========== */
+.reports-page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 统计行 */
+.stat-row {
+  display: flex;
+}
+.stat-cell {
+  flex: 1;
+  text-align: center;
+}
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 22rpx;
+  color: #94a3b8;
+  margin-top: 4rpx;
+}
+
+/* 筛选行 */
+.filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+}
+
+/* 小按钮 */
+.btn-sm {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 10rpx;
+  font-weight: 600;
+}

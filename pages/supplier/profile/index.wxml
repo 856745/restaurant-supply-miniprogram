@@ -1,0 +1,124 @@
+<view class="fix-top"></view>
+
+<!-- 用户头像区 -->
+<view class="card" style="text-align:center;padding:48rpx 28rpx;background:linear-gradient(135deg,#fff7ed,#ffedd5);">
+  <view style="width:120rpx;height:120rpx;border-radius:50%;background:linear-gradient(135deg,#ea580c,#f97316);display:flex;align-items:center;justify-content:center;font-size:56rpx;color:#fff;margin:0 auto 16rpx;">🚚</view>
+  <view style="font-size:36rpx;font-weight:700;color:#0f172a;">{{supplier.name || '供货商'}}</view>
+  <view style="display:inline-block;margin-top:12rpx;padding:6rpx 24rpx;border-radius:40rpx;background:#ea580c;color:#fff;font-size:24rpx;font-weight:600;">供货商</view>
+</view>
+
+<!-- 供货商信息（可编辑） -->
+<view class="card">
+  <view style="display:flex;align-items:center;margin-bottom:16rpx;">
+    <view style="flex:1;font-size:30rpx;font-weight:700;">供货商信息</view>
+    <view style="font-size:24rpx;color:#ea580c;font-weight:600;" bindtap="openAddrModal">编辑 ›</view>
+  </view>
+  <view style="display:flex;align-items:center;padding:16rpx 0;border-bottom:1rpx solid #f1f5f9;">
+    <text style="width:140rpx;color:#64748b;font-size:26rpx;">联系人</text>
+    <text style="flex:1;font-size:28rpx;">{{supplier.contact || '-'}}</text>
+  </view>
+  <view style="display:flex;align-items:center;padding:16rpx 0;border-bottom:1rpx solid #f1f5f9;">
+    <text style="width:140rpx;color:#64748b;font-size:26rpx;">联系电话</text>
+    <text style="flex:1;font-size:28rpx;">{{supplier.phone || '-'}}</text>
+  </view>
+  <view style="display:flex;align-items:center;padding:16rpx 0;">
+    <text style="width:140rpx;color:#64748b;font-size:26rpx;">地址</text>
+    <text style="flex:1;font-size:28rpx;">{{supplier.address || '-'}}</text>
+  </view>
+</view>
+
+<!-- 数据概览 -->
+<view class="stat-row card">
+  <view class="stat-cell">
+    <view class="stat-num" style="color:#ea580c;">{{stats.orderCount}}</view>
+    <view class="stat-label">订单数</view>
+  </view>
+  <view class="stat-cell">
+    <view class="stat-num" style="color:#10b981;">¥{{stats.totalSales}}</view>
+    <view class="stat-label">销售额</view>
+  </view>
+</view>
+
+<!-- 功能列表 -->
+<view class="card">
+  <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="goMessages">
+    <text style="flex:1;font-size:28rpx;">💌 消息中心</text>
+    <text wx:if="{{unreadMsgCount > 0}}" style="background:#ef4444;color:#fff;font-size:20rpx;padding:2rpx 14rpx;border-radius:20rpx;margin-right:8rpx;">{{unreadMsgCount}}</text>
+    <text style="color:#94a3b8;">›</text>
+  </view>
+  <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="goFeedback">
+    <text style="flex:1;font-size:28rpx;">💬 意见反馈</text>
+    <text style="color:#94a3b8;">›</text>
+  </view>
+  <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="openPwdModal">
+    <text style="flex:1;font-size:28rpx;">🔐 修改密码</text>
+    <text style="color:#94a3b8;">›</text>
+  </view>
+  <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="showPrivacy">
+    <text style="flex:1;font-size:28rpx;">📜 隐私政策</text>
+    <text style="color:#94a3b8;">›</text>
+  </view>
+  <view style="padding:24rpx 0;display:flex;align-items:center;" bindtap="logout">
+    <text style="flex:1;color:#ef4444;font-size:28rpx;">🚪 退出登录</text>
+    <text style="color:#94a3b8;">›</text>
+  </view>
+</view>
+
+<!-- 版本信息 -->
+<view class="card">
+  <view style="font-size:24rpx;color:#94a3b8;text-align:center;">
+    餐饮供货管理平台 v1.0
+  </view>
+</view>
+
+<!-- 修改地址弹窗 -->
+<view class="modal-mask" wx:if="{{showAddrModal}}">
+  <view class="modal-overlay" bindtap="closeAddrModal"></view>
+  <view class="modal-body">
+    <view class="modal-title">编辑供货商信息</view>
+    <view class="form-group">
+      <view class="form-label">联系人</view>
+      <input class="form-input" value="{{editContact}}" bindinput="onContactInput" placeholder="联系人姓名" />
+    </view>
+    <view class="form-group">
+      <view class="form-label">联系电话</view>
+      <input class="form-input" type="number" value="{{editPhone}}" bindinput="onPhoneInput" placeholder="联系电话" />
+    </view>
+    <view class="form-group">
+      <view class="form-label">地址</view>
+      <textarea class="form-textarea" value="{{editAddr}}" bindinput="onAddrInput" placeholder="详细地址" />
+    </view>
+    <view class="modal-actions">
+      <view class="btn btn-outline" bindtap="closeAddrModal">取消</view>
+      <view class="btn" style="background:#ea580c;color:#fff;" bindtap="submitAddr">保存</view>
+    </view>
+  </view>
+</view>
+
+<!-- 修改密码弹窗 -->
+<view class="modal-mask" wx:if="{{showPwdModal}}">
+  <view class="modal-overlay" bindtap="closePwdModal"></view>
+  <view class="modal-body">
+    <view class="modal-title">修改密码</view>
+    <view class="form-group">
+      <view class="form-label">原密码</view>
+      <input class="form-input" password="{{true}}" value="{{oldPwd}}" bindinput="onOldPwdInput" placeholder="请输入原密码" />
+    </view>
+    <view class="form-group">
+      <view class="form-label">新密码</view>
+      <input class="form-input" password="{{true}}" value="{{newPwd}}" bindinput="onNewPwdInput" placeholder="至少6位" />
+    </view>
+    <view class="form-group">
+      <view class="form-label">确认新密码</view>
+      <input class="form-input" password="{{true}}" value="{{confirmPwd}}" bindinput="onConfirmPwdInput" placeholder="再次输入新密码" />
+    </view>
+    <view class="modal-actions">
+      <view class="btn btn-outline" bindtap="closePwdModal">取消</view>
+      <view class="btn" style="background:#ea580c;color:#fff;" bindtap="submitPassword">确认修改</view>
+    </view>
+  </view>
+</view>
+
+<privacy-popup show="{{showPrivacyModal}}" bind:close="onClosePrivacy" />
+
+<tabbar current="profile" />

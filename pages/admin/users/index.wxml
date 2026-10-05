@@ -1,0 +1,129 @@
+<view class="fix-top"></view>
+
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <text class="search-ico">🔍</text>
+  <input placeholder="搜索姓名、手机号或供货商" value="{{keyword}}" bindinput="onSearch" />
+</view>
+
+<view class="card" style="background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;border-radius:24rpx;">
+  <view style="display:flex;justify-content:space-between;align-items:center;">
+    <view>
+      <view style="font-size:36rpx;font-weight:700;">用户管理</view>
+      <view style="font-size:24rpx;opacity:.8;margin-top:8rpx;">审核与管理平台用户账号</view>
+    </view>
+    <view class="btn" style="background:rgba(255,255,255,.25);color:#fff;padding:12rpx 28rpx;border-radius:12rpx;font-size:26rpx;" bindtap="showAddModal">＋ 新增</view>
+  </view>
+</view>
+
+<!-- 角色筛选 -->
+<view class="cat-bar">
+  <view class="cat-tag {{filterRole === '' ? 'active' : ''}}" bindtap="filterByRole" data-role="">全部</view>
+  <view class="cat-tag {{filterRole === 'admin' ? 'active' : ''}}" bindtap="filterByRole" data-role="admin">管理员</view>
+  <view class="cat-tag {{filterRole === 'manager' ? 'active' : ''}}" bindtap="filterByRole" data-role="manager">店长</view>
+  <view class="cat-tag {{filterRole === 'supplier' ? 'active' : ''}}" bindtap="filterByRole" data-role="supplier">供货商</view>
+</view>
+
+<!-- 用户列表 -->
+<view class="card" wx:if="{{users.length > 0}}">
+  <view wx:for="{{users}}" wx:key="_id" style="padding:20rpx 0;border-bottom:1rpx solid #f1f5f9;">
+    <view style="display:flex;align-items:center;">
+      <view style="width:64rpx;height:64rpx;border-radius:50%;background:{{item.status === 'active' ? '#d1fae5' : item.status === 'pending' ? '#fef3c7' : '#fee2e2'}};display:flex;align-items:center;justify-content:center;font-size:28rpx;margin-right:16rpx;flex-shrink:0;">👤</view>
+      <view style="flex:1;overflow:hidden;">
+        <view style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{item.name}}</view>
+        <view style="font-size:24rpx;color:#94a3b8;">
+          {{item.role === 'admin' ? '管理员' : item.role === 'manager' ? '店长' : '供货商'}}
+          <text wx:if="{{item.role === 'supplier' && item.supplierName}}"> · {{item.supplierName}}</text>
+          <text wx:else> · {{item.phone || '未填写'}}</text>
+        </view>
+      </view>
+      <view style="flex-shrink:0;margin-left:12rpx;">
+        <view wx:if="{{item.status === 'pending'}}" style="display:flex;gap:12rpx;">
+          <view class="btn btn-sm btn-success" catchtap="approve" data-id="{{item._id}}">通过</view>
+          <view class="btn btn-sm btn-danger" style="background:#ef4444;color:#fff;" catchtap="reject" data-id="{{item._id}}">拒绝</view>
+        </view>
+        <view wx:else class="tag {{item.status === 'active' ? 'tag-active' : 'tag-cancelled'}}">
+          {{item.status === 'active' ? '正常' : '已禁用'}}
+        </view>
+      </view>
+    </view>
+    <!-- 操作按钮行（已审核用户） -->
+    <view wx:if="{{item.status !== 'pending'}}" style="display:flex;gap:12rpx;margin-top:12rpx;padding-left:80rpx;">
+      <view class="btn btn-sm btn-outline" style="background:#eef2ff;color:#4f46e5;" catchtap="showEditModal" data-id="{{item._id}}">编辑</view>
+      <view class="btn btn-sm btn-outline" style="background:{{item.status === 'active' ? '#fef3c7' : '#d1fae5'}};color:{{item.status === 'active' ? '#f59e0b' : '#10b981'}};" catchtap="toggleUserStatus" data-id="{{item._id}}">
+        {{item.status === 'active' ? '禁用' : '启用'}}
+      </view>
+      <view wx:if="{{item.role !== 'admin'}}" class="btn btn-sm btn-outline" style="background:#fee2e2;color:#ef4444;" catchtap="deleteUser" data-id="{{item._id}}">删除</view>
+    </view>
+  </view>
+</view>
+
+<view wx:else class="card"><view class="empty-block"><view class="empty-ico">👥</view><view>暂无用户数据</view></view></view>
+
+<!-- ==================== 新增/编辑弹窗 ==================== -->
+<view class="modal-mask" wx:if="{{showModal}}">
+  <view class="modal-overlay" bindtap="closeModal"></view>
+  <view class="modal-body" style="max-height:80vh;overflow-y:auto;">
+    <view class="modal-title">{{modalTitle}}</view>
+
+    <view class="form-group">
+      <view class="form-label">手机号 <text style="color:#ef4444;">*</text></view>
+      <input class="form-input" value="{{formPhone}}" bindinput="onFormPhone" placeholder="必填，作为账号标识" type="number" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">姓名 <text style="color:#94a3b8;font-size:22rpx;">（选填，后续可修改）</text></view>
+      <input class="form-input" value="{{formName}}" bindinput="onFormName" placeholder="输入姓名，留空则默认使用角色名" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">{{editingId ? '新密码（留空不修改）' : '密码'}}</view>
+      <input class="form-input" value="{{formPassword}}" bindinput="onFormPassword" placeholder="{{editingId ? '留空则不修改密码' : '请输入登录密码'}}" type="password" />
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">角色</view>
+      <picker mode="selector" range="{{['管理员','店长','供货商']}}" range-value="{{['admin','manager','supplier']}}" value="{{formRole === 'admin' ? 0 : formRole === 'manager' ? 1 : 2}}" bindchange="onRoleChange">
+        <view class="form-input" style="display:flex;justify-content:space-between;align-items:center;">
+          <view>{{formRole === 'admin' ? '管理员' : formRole === 'manager' ? '店长' : '供货商'}}</view>
+          <view style="color:#94a3b8;font-size:24rpx;">▼</view>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 店长才显示选店铺 -->
+    <view class="form-group" wx:if="{{formRole === 'manager' && storeList.length > 0}}">
+      <view class="form-label">关联店铺</view>
+      <picker mode="selector" range="{{storeList}}" value="{{storeIdx}}" bindchange="onStoreChange">
+        <view class="form-input" style="display:flex;justify-content:space-between;align-items:center;">
+          <view>{{storeList[storeIdx] || '选择店铺'}}</view>
+          <view style="color:#94a3b8;font-size:24rpx;">▼</view>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 供货商名称直接填写 -->
+    <view class="form-group" wx:if="{{formRole === 'supplier'}}">
+      <view class="form-label">供货商名称 <text style="color:#ef4444;">*</text></view>
+      <input class="form-input" value="{{formSupplierName}}" bindinput="onSupplierName" placeholder="输入供货商名称，不存在则自动创建" />
+    </view>
+
+    <!-- 编辑模式才显示状态切换 -->
+    <view class="form-group" wx:if="{{editingId}}">
+      <view class="form-label">状态</view>
+      <picker mode="selector" range="{{['正常','禁用']}}" range-value="{{['active','disabled']}}" value="{{formStatus === 'active' ? 0 : 1}}" bindchange="onStatusChange">
+        <view class="form-input" style="display:flex;justify-content:space-between;align-items:center;">
+          <view style="color:{{formStatus === 'active' ? '#10b981' : '#ef4444'}};">{{formStatus === 'active' ? '● 正常' : '● 禁用'}}</view>
+          <view style="color:#94a3b8;font-size:24rpx;">▼</view>
+        </view>
+      </picker>
+    </view>
+
+    <view class="modal-actions">
+      <view class="btn" style="background:#f1f5f9;color:#64748b;" bindtap="closeModal">取消</view>
+      <view class="btn btn-primary" bindtap="submitUser">{{editingId ? '保存修改' : '确认添加'}}</view>
+    </view>
+  </view>
+</view>
+
+<tabbar current="users" />

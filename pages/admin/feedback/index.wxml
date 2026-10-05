@@ -1,0 +1,35 @@
+<view class="fb-admin-page">
+  <!-- 顶部统计 + 提交入口 -->
+  <view class="card" style="display:flex;align-items:center;">
+    <view style="flex:1;">
+      <view style="font-size:30rpx;font-weight:700;">反馈管理</view>
+      <view style="font-size:24rpx;color:var(--text-2);margin-top:6rpx;">共 {{total}} 条反馈</view>
+    </view>
+    <view class="btn btn-primary btn-sm" bindtap="goSubmit">＋ 我要反馈</view>
+  </view>
+
+  <!-- 反馈列表 -->
+  <block wx:if="{{feedbacks.length > 0}}">
+    <view wx:for="{{feedbacks}}" wx:key="_id" class="card fb-card"
+      data-id="{{item._id}}" bindtap="onTapFeedback" bindlongpress="onDeleteFeedback">
+      <view style="display:flex;align-items:center;margin-bottom:12rpx;">
+        <view class="fb-dot {{item.status === 'unread' ? 'unread' : ''}}"></view>
+        <text class="fb-type fb-type-{{item.typeCls}}">{{item.typeName}}</text>
+        <text style="font-size:24rpx;color:var(--text-2);margin-left:12rpx;">{{item.roleName}} · {{item.userName || '匿名'}}</text>
+        <text style="flex:1;text-align:right;font-size:22rpx;color:var(--text-3);">{{item.timeText}}</text>
+      </view>
+      <view style="font-size:28rpx;line-height:1.6;white-space:pre-wrap;word-break:break-all;">{{item.content}}</view>
+      <view wx:if="{{item.contact}}" style="font-size:24rpx;color:var(--text-2);margin-top:10rpx;">
+        联系方式：{{item.contact}}
+      </view>
+      <view style="font-size:22rpx;color:var(--text-3);margin-top:12rpx;">提示：点击标记已读，长按删除</view>
+    </view>
+    <view class="load-more">{{hasMore ? '上拉加载更多' : '已加载全部'}}</view>
+  </block>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty-block">
+    <view class="empty-ico">📭</view>
+    <view>暂无反馈</view>
+  </view>
+</view>

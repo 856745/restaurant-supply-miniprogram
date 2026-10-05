@@ -1,0 +1,33 @@
+<view class="manager-theme fix-top">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索货品" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+
+  <!-- 货品目录 -->
+  <view class="card">
+    <view style="font-size:30rpx;font-weight:700;margin-bottom:16rpx;">货品目录</view>
+    <view wx:if="{{filteredGoods.length===0}}" class="empty-block">
+      <view class="empty-ico">📦</view>
+      <view>暂无货品</view>
+    </view>
+    <view wx:for="{{filteredGoods}}" wx:key="_id"
+      style="display:flex;align-items:center;padding:20rpx 0;border-bottom:1rpx solid var(--border);">
+      <image wx:if="{{item.hasImage}}" src="{{item.image}}" mode="aspectFill" style="width:72rpx;height:72rpx;border-radius:10rpx;margin-right:16rpx;flex-shrink:0;" />
+      <view wx:else style="font-size:40rpx;margin-right:16rpx;width:72rpx;text-align:center;flex-shrink:0;">{{item.icon}}</view>
+      <view style="flex:1;overflow:hidden;">
+        <view style="font-weight:600;">{{item.name}}</view>
+        <view style="font-size:22rpx;color:var(--text-2);">{{item.catName}} · {{item.specWeight || '-'}}</view>
+        <view style="font-size:22rpx;color:var(--text-3);" wx:if="{{item.specCount}}">{{item.specCount}}</view>
+        <view style="font-size:22rpx;color:var(--text-3);" wx:if="{{item.description}}">{{item.description}}</view>
+      </view>
+      <view style="text-align:right;white-space:nowrap;margin-left:12rpx;">
+        <view style="font-weight:700;color:#0f766e;">¥{{item.price}}</view>
+        <view style="font-size:22rpx;color:var(--text-2);">/{{item.unit}}</view>
+      </view>
+    </view>
+  </view>
+
+  <tabbar current="inventory"></tabbar>
+</view>

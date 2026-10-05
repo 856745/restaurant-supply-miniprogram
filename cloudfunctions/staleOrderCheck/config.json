@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "openapi": ["subscribeMessage.send"]
+  },
+  "timeout": 60,
+  "triggers": [
+    {
+      "name": "staleOrderTimer",
+      "type": "timer",
+      "config": "0 */5 * * * * *"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<view class="manager-theme fix-top">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索供应商名称、联系人、电话或地址" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+
+  <!-- 供货商卡片列表 -->
+  <view wx:if="{{filteredSuppliers.length===0}}" class="empty-block">
+    <view class="empty-ico">🏪</view>
+    <view>{{keyword ? '未找到匹配的供应商' : '暂无供货商'}}</view>
+  </view>
+
+  <view class="card" wx:for="{{filteredSuppliers}}" wx:key="_id">
+    <view style="display:flex;align-items:center;margin-bottom:16rpx;">
+      <view style="font-size:36rpx;margin-right:16rpx;">🏭</view>
+      <view style="flex:1;">
+        <view style="font-size:32rpx;font-weight:700;">{{item.name}}</view>
+        <view style="font-size:24rpx;color:var(--text-2);">{{item.address}}</view>
+      </view>
+    </view>
+
+    <view style="display:flex;align-items:center;margin-bottom:12rpx;">
+      <view style="font-size:24rpx;color:var(--text-2);">联系人：{{item.contact}}</view>
+      <view style="margin-left:auto;color:#0f766e;font-weight:600;font-size:26rpx;" bindtap="callPhone" data-phone="{{item.phone}}">
+        📞 {{item.phone}}
+      </view>
+    </view>
+
+    <!-- 经营范围标签 -->
+    <view style="display:flex;flex-wrap:wrap;gap:8rpx;">
+      <view wx:for="{{item.catTags}}" wx:for-item="tag" wx:key="id"
+        style="padding:6rpx 16rpx;border-radius:8rpx;font-size:22rpx;background:#f0fdfa;color:#0f766e;">
+        {{tag.name}}
+      </view>
+    </view>
+  </view>
+
+  <tabbar current="suppliers"></tabbar>
+</view>

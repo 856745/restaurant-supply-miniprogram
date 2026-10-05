@@ -1,0 +1,20 @@
+.fb-page { padding-top: 20rpx; }
+
+.type-row { display: flex; flex-wrap: wrap; gap: 16rpx; }
+
+.type-chip {
+  padding: 16rpx 28rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  background: var(--bg);
+  color: var(--text-2);
+  border: 2rpx solid transparent;
+  transition: all .2s;
+}
+.type-chip.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.fb-textarea { min-height: 240rpx; }

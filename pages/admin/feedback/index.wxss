@@ -1,0 +1,24 @@
+.fb-admin-page { padding-top: 20rpx; }
+
+.fb-card { position: relative; }
+
+.fb-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: transparent;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+.fb-dot.unread { background: #ef4444; }
+
+.fb-type {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+.fb-type-danger { background: #fee2e2; color: #ef4444; }
+.fb-type-success { background: #d1fae5; color: #10b981; }
+.fb-type-gray { background: #f3f4f6; color: #9ca3af; }

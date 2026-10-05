@@ -1,0 +1,4 @@
+{
+  "usingComponents": { "tabbar": "/components/tabbar/tabbar" },
+  "navigationBarTitleText": "店长工作台"
+}

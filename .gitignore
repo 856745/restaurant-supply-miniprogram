@@ -1,0 +1,24 @@
+# 微信开发者工具私有配置（含本地路径等个人信息，不应提交）
+project.private.config.json
+project.private.config.json.*
+
+# 依赖
+node_modules/
+miniprogram_npm/
+cloudfunctions/*/node_modules/
+
+# 编辑器 / 工作区
+.workbuddy/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+[Dd]esktop.ini
+Thumbs.db
+.DS_Store
+
+# 日志与临时文件
+*.log
+*.tmp

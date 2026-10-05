@@ -1,0 +1,65 @@
+<view class="login-page {{showForm ? 'form-mode' : ''}}">
+  <!-- 头部 -->
+  <view class="login-header">
+    <view class="login-logo">餐饮供货</view>
+    <view class="login-subtitle">餐饮供货管理平台</view>
+  </view>
+
+  <!-- 角色选择 -->
+  <view class="login-body" wx:if="{{!showForm}}">
+    <view class="login-title">选择您的身份</view>
+    <view class="role-list">
+      <view class="role-card" wx:for="{{roles}}" wx:key="id"
+        bindtap="selectRole" data-role="{{item.id}}"
+        style="border-color:{{item.color}}; background:{{item.bg}}">
+        <view class="role-name" style="color:{{item.color}}">{{item.name}}</view>
+        <view class="role-desc">{{item.desc}}</view>
+        <view class="role-arrow" style="color:{{item.color}}">进入 ›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 登录/注册表单 -->
+  <view class="login-body" wx:if="{{showForm}}">
+    <view class="login-title">
+      {{isRegister ? '注册账号' : '账号登录'}}
+      <text class="role-badge" wx:if="{{selectedRole}}">
+        {{selectedRole === 'admin' ? '管理员' : selectedRole === 'manager' ? '店长' : '供货商'}}
+      </text>
+    </view>
+
+    <view class="form-group">
+      <view class="form-label">手机号 <text style="color:#ef4444;">*</text></view>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhoneInput" />
+    </view>
+
+    <block wx:if="{{isRegister}}">
+      <view class="form-group">
+        <view class="form-label">姓名 <text style="color:#94a3b8;font-size:22rpx;">（选填，默认使用手机号）</text></view>
+        <input class="form-input" placeholder="请输入姓名" value="{{name}}" bindinput="onNameInput" />
+      </view>
+    </block>
+
+    <view class="form-group">
+      <view class="form-label">密码 <text style="color:#ef4444;">*</text></view>
+      <input class="form-input" type="password" placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" />
+    </view>
+
+    <view class="form-group" wx:if="{{isRegister}}">
+      <view class="form-label">确认密码 <text style="color:#ef4444;">*</text></view>
+      <input class="form-input" type="password" placeholder="请再次输入密码" value="{{confirmPassword}}" bindinput="onConfirmPasswordInput" />
+    </view>
+
+    <view class="btn btn-primary btn-block" bindtap="submitForm">
+      {{isRegister ? '提交注册' : '登录'}}
+    </view>
+
+    <view class="link-btn" bindtap="switchMode">
+      {{isRegister ? '已有账号？去登录' : '没有账号？去注册'}}
+    </view>
+    <view class="link-btn" bindtap="back">重新选择角色</view>
+  </view>
+
+  <view class="login-footer">
+  </view>
+</view>

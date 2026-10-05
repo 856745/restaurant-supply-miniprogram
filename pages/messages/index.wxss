@@ -1,0 +1,13 @@
+.msg-page { padding-top: 20rpx; }
+
+.msg-card { position: relative; }
+
+.msg-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: transparent;
+  margin-right: 10rpx;
+  flex-shrink: 0;
+}
+.msg-dot.unread { background: #ef4444; }

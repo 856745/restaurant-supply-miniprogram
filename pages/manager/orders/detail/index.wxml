@@ -1,0 +1,212 @@
+<view class="manager-theme detail-page" wx:if="{{order}}">
+  <!-- 状态栏 -->
+  <view class="status-banner {{tagClass}}">
+    <view class="status-text">{{statusName}}</view>
+    <view class="status-no">订单号：{{order.no}}</view>
+  </view>
+
+  <!-- 供应商 + 店铺信息 -->
+  <view class="info-card">
+    <view class="info-row">
+      <text class="info-label">供货商</text>
+      <text class="info-value supplier-name">{{order.supplierName}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">店铺</text>
+      <text class="info-value">{{order.storeName}}</text>
+    </view>
+
+    <!-- 收货信息：非编辑模式 -->
+    <block wx:if="{{!editingReceiver}}">
+      <view class="info-row">
+        <text class="info-label">收货人</text>
+        <text class="info-value">{{order.receiver || '未填写'}}</text>
+      </view>
+      <view class="info-row" wx:if="{{order.receiverPhone}}">
+        <text class="info-label">联系电话</text>
+        <text class="info-value">{{order.receiverPhone}}</text>
+      </view>
+      <view class="info-row" wx:if="{{order.deliveryAddress}}">
+        <text class="info-label">收货地址</text>
+        <text class="info-value">{{order.deliveryAddress}}</text>
+      </view>
+      <view class="info-row" wx:if="{{receiverEditable}}">
+        <text class="info-label"></text>
+        <text class="edit-receiver-btn" bindtap="startEditReceiver">修改收货信息</text>
+      </view>
+    </block>
+
+    <!-- 收货信息：编辑模式 -->
+    <block wx:if="{{editingReceiver}}">
+      <view class="info-row edit-row">
+        <text class="info-label">收货人</text>
+        <input class="edit-input" type="text" value="{{editReceiver}}" bindinput="onReceiverInput" placeholder="请输入收货人姓名" />
+      </view>
+      <view class="info-row edit-row">
+        <text class="info-label">联系电话</text>
+        <input class="edit-input" type="number" value="{{editReceiverPhone}}" bindinput="onPhoneInput" placeholder="请输入联系电话" maxlength="11" />
+      </view>
+      <view class="info-row edit-row">
+        <text class="info-label">收货地址</text>
+        <textarea class="edit-textarea" value="{{editAddress}}" bindinput="onAddressInput" placeholder="请输入收货地址" auto-height maxlength="100" />
+      </view>
+      <view class="info-row edit-actions-row">
+        <text class="edit-receiver-cancel" bindtap="cancelEditReceiver">取消</text>
+        <text class="edit-receiver-save" bindtap="saveReceiver">保存</text>
+      </view>
+    </block>
+
+    <view class="info-row">
+      <text class="info-label">下单时间</text>
+      <text class="info-value">{{order.createTime}}</text>
+    </view>
+    <view class="info-row" wx:if="{{order.updateTime && order.updateTime !== order.createTime}}">
+      <text class="info-label">更新时间</text>
+      <text class="info-value">{{order.updateTime}}</text>
+    </view>
+    <view class="info-row" wx:if="{{order.batchNo}}">
+      <text class="info-label">采购批次</text>
+      <text class="info-value batch-no">{{order.batchNo}}</text>
+    </view>
+  </view>
+
+  <!-- 货品明细 -->
+  <view class="section-card">
+    <view class="section-title-row">
+      <text class="section-title">货品明细（{{order.itemCount}}件）</text>
+      <text class="edit-btn" wx:if="{{editable && !editing}}" bindtap="startEdit">修改数量</text>
+      <view class="edit-actions" wx:if="{{editing}}">
+        <text class="edit-action cancel" bindtap="cancelEdit">取消</text>
+        <text class="edit-action save" bindtap="saveEdit">保存</text>
+      </view>
+    </view>
+
+    <view class="goods-table">
+      <view class="table-header">
+        <text class="col-name">货品</text>
+        <text class="col-price">单价</text>
+        <text class="col-qty">数量</text>
+        <text class="col-amount">金额</text>
+      </view>
+
+      <!-- 非编辑模式 -->
+      <block wx:if="{{!editing}}">
+        <view class="table-row" wx:for="{{order.items}}" wx:key="goodsId" wx:for-item="oi">
+          <view class="col-name-cell">
+            <text class="goods-name">{{oi.name}}</text>
+            <text class="goods-spec" wx:if="{{oi.specWeight || oi.specCount}}">{{oi.specWeight}}{{oi.specCount ? ' / ' + oi.specCount : ''}}</text>
+            <text class="goods-code" wx:if="{{oi.code}}">{{oi.code}}</text>
+          </view>
+          <text class="col-price">¥{{oi.price}}/{{oi.unit}}</text>
+          <view class="col-qty-cell">
+            <text class="col-qty">×{{oi.qty}}</text>
+            <text class="recv-badge" wx:if="{{order.status === 'partial' && oi.receivedQty !== undefined && oi.receivedQty < oi.qty}}">实收{{oi.receivedQty}}</text>
+            <text class="recv-badge" wx:if="{{order.status === 'received' && oi.receivedQty !== undefined && oi.receivedQty < oi.qty}}">实收{{oi.receivedQty}}</text>
+          </view>
+          <text class="col-amount">¥{{oi.receivedAmount || oi.amount}}</text>
+        </view>
+      </block>
+
+      <!-- 编辑模式 -->
+      <block wx:if="{{editing}}">
+        <view class="table-row" wx:for="{{editItems}}" wx:key="goodsId" wx:for-item="ei" wx:for-index="idx">
+          <view class="col-name-cell">
+            <text class="goods-name">{{ei.name}}</text>
+            <text class="goods-spec" wx:if="{{ei.specWeight || ei.specCount}}">{{ei.specWeight}}{{ei.specCount ? ' / ' + ei.specCount : ''}}</text>
+            <text class="goods-code" wx:if="{{ei.code}}">{{ei.code}}</text>
+          </view>
+          <text class="col-price">¥{{ei.price}}/{{ei.unit}}</text>
+          <view class="col-qty-stepper">
+            <view class="step-btn sub" bindtap="onItemSub" data-idx="{{idx}}">-</view>
+            <input class="step-num-input" type="digit" value="{{ei.qty}}"
+              bindinput="onItemInput" bindblur="onItemBlur" data-idx="{{idx}}" />
+            <view class="step-btn add" bindtap="onItemAdd" data-idx="{{idx}}">+</view>
+          </view>
+          <text class="col-amount">¥{{ei.qty * ei.price}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="table-footer">
+      <text class="total-label">合计</text>
+      <text class="total-amount">¥{{order.total}}</text>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="section-card" wx:if="{{order.remark}}">
+    <view class="section-title">备注</view>
+    <view class="remark-box">{{order.remark}}</view>
+  </view>
+
+  <!-- 发货凭证 -->
+  <view class="section-card" wx:if="{{order.shipImage}}">
+    <view class="section-title">发货凭证</view>
+    <image src="{{order.shipImage}}" mode="widthFix" class="ship-img"
+      bindtap="previewImage" data-url="{{order.shipImage}}" />
+    <view class="ship-time" wx:if="{{order.shipTime}}">发货时间：{{order.shipTime}}</view>
+  </view>
+
+  <!-- 同批次订单 -->
+  <view class="section-card" wx:if="{{batchOrders.length}}">
+    <view class="section-title">同批次采购（{{batchOrders.length}}个订单）</view>
+    <view class="batch-item" wx:for="{{batchOrders}}" wx:key="_id"
+      bindtap="viewBatchOrder" data-id="{{item._id}}">
+      <view class="batch-item-top">
+        <text class="batch-supplier">{{item.supplierName}}</text>
+        <text class="tag {{item.tagClass}}">{{item.statusName}}</text>
+      </view>
+      <view class="batch-item-mid">
+        <text class="batch-goods">
+          <text wx:for="{{item.items}}" wx:key="goodsId" wx:for-item="oi">{{oi.name}}x{{oi.qty}}{{index < item.items.length - 1 ? ',' : ''}}</text>
+        </text>
+      </view>
+      <view class="batch-item-bot">
+        <text class="batch-total">¥{{item.total}}</text>
+        <text class="batch-arrow">查看详情 ></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar" wx:if="{{order.status === 'pending' || order.status === 'shipped' || order.status === 'partial'}}">
+    <view class="btn btn-danger btn-lg" wx:if="{{order.status === 'pending'}}"
+      bindtap="cancelOrder">取消订单</view>
+    <view class="btn btn-success btn-lg" wx:if="{{order.status === 'shipped' || order.status === 'partial'}}"
+      style="background:#0f766e;" bindtap="openReceivePopup">确认收货</view>
+  </view>
+
+  <view style="height:140rpx;"></view>
+</view>
+
+<!-- 部分收货弹窗 -->
+<view class="recv-mask" wx:if="{{showReceive}}" catchtap="closeReceive">
+  <view class="recv-panel" catchtap="">
+    <view class="recv-title">确认收货</view>
+    <view class="recv-tip">请逐项确认本次实收数量（支持小数，如0.8斤）</view>
+    <scroll-view scroll-y class="recv-list">
+      <view class="recv-row" wx:for="{{receiveItems}}" wx:key="goodsId" wx:for-item="ri" wx:for-index="idx">
+        <view class="recv-info">
+          <text class="recv-name">{{ri.name}}</text>
+          <text class="recv-sub">订购 {{ri.qty}}{{ri.unit}} · ¥{{ri.price}}/{{ri.unit}}</text>
+          <text class="recv-amount">实收金额：¥{{ri.receivedAmount}}</text>
+        </view>
+        <view class="recv-stepper">
+          <view class="step-btn sub {{ri.receivedQty <= 0 ? 'disabled' : ''}}" bindtap="onRecvSub" data-idx="{{idx}}">-</view>
+          <input class="recv-input" type="digit" value="{{ri._displayVal}}" bindinput="onRecvInput" data-idx="{{idx}}" />
+          <view class="step-btn add {{ri.receivedQty >= ri.qty ? 'disabled' : ''}}" bindtap="onRecvAdd" data-idx="{{idx}}">+</view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="recv-actions">
+      <view class="recv-btn cancel" bindtap="closeReceive">取消</view>
+      <view class="recv-btn ok" bindtap="confirmReceive">确认收货</view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中占位 -->
+<view class="detail-page loading-block" wx:if="{{!order}}">
+  <view class="empty-ico">📋</view>
+  <view>加载中...</view>
+</view>

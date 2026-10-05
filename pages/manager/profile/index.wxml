@@ -1,0 +1,91 @@
+<view class="manager-theme fix-top">
+  <!-- 用户头像区 -->
+  <view style="background:linear-gradient(135deg,#0f766e,#14b8a6);border-radius:0 0 32rpx 32rpx;padding:48rpx 32rpx;text-align:center;margin-bottom:24rpx;">
+    <view style="font-size:72rpx;margin-bottom:12rpx;">🔧</view>
+    <view style="color:#fff;font-size:34rpx;font-weight:700;">{{userName}}</view>
+    <view style="color:rgba(255,255,255,.7);font-size:26rpx;">店长</view>
+  </view>
+
+  <!-- 店铺信息 -->
+  <view class="card" wx:if="{{storeName}}">
+    <view style="font-size:30rpx;font-weight:700;margin-bottom:16rpx;">所属店铺</view>
+    <view style="font-size:28rpx;font-weight:600;">{{storeName}}</view>
+    <view style="font-size:24rpx;color:var(--text-2);margin-top:8rpx;">📍 {{storeAddress}}</view>
+    <view style="font-size:24rpx;color:var(--text-2);margin-top:4rpx;">📞 {{storePhone}}</view>
+  </view>
+
+  <!-- 统计行 -->
+  <view class="card">
+    <view class="stat-row">
+      <view class="stat-cell">
+        <view class="stat-num" style="color:#0f766e;">{{goodsCount}}</view>
+        <view class="stat-label">可选货品</view>
+      </view>
+      <view class="stat-cell">
+        <view class="stat-num" style="color:#0f766e;">{{orderCount}}</view>
+        <view class="stat-label">订单数</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="card">
+    <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="goMessages">
+      <text style="flex:1;font-size:28rpx;">💌 消息中心</text>
+      <text wx:if="{{unreadMsgCount > 0}}" style="background:#ef4444;color:#fff;font-size:20rpx;padding:2rpx 14rpx;border-radius:20rpx;margin-right:8rpx;">{{unreadMsgCount}}</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+    <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="goSuppliers">
+      <text style="flex:1;font-size:28rpx;">🏭 供货商管理</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+    <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="goFeedback">
+      <text style="flex:1;font-size:28rpx;">💬 意见反馈</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+    <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="openPwdModal">
+      <text style="flex:1;font-size:28rpx;">🔐 修改密码</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+    <view style="padding:24rpx 0;display:flex;align-items:center;border-bottom:1rpx solid #f1f5f9;" bindtap="showPrivacy">
+      <text style="flex:1;font-size:28rpx;">📜 隐私政策</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+    <view style="padding:24rpx 0;display:flex;align-items:center;" bindtap="logout">
+      <text style="flex:1;color:#ef4444;font-size:28rpx;">🚪 退出登录</text>
+      <text style="color:#94a3b8;">›</text>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view style="text-align:center;padding:40rpx 0;color:var(--text-3);font-size:24rpx;">
+    餐饮供货管理 v1.0.0
+  </view>
+
+  <!-- 修改密码弹窗 -->
+  <view class="modal-mask" wx:if="{{showPwdModal}}">
+    <view class="modal-overlay" bindtap="closePwdModal"></view>
+    <view class="modal-body">
+      <view class="modal-title">修改密码</view>
+      <view class="form-group">
+        <view class="form-label">原密码</view>
+        <input class="form-input" password="{{true}}" value="{{oldPwd}}" bindinput="onOldPwdInput" placeholder="请输入原密码" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">新密码</view>
+        <input class="form-input" password="{{true}}" value="{{newPwd}}" bindinput="onNewPwdInput" placeholder="至少6位" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">确认新密码</view>
+        <input class="form-input" password="{{true}}" value="{{confirmPwd}}" bindinput="onConfirmPwdInput" placeholder="再次输入新密码" />
+      </view>
+      <view class="modal-actions">
+        <view class="btn btn-outline" bindtap="closePwdModal">取消</view>
+        <view class="btn" style="background:#0f766e;color:#fff;" bindtap="submitPassword">确认修改</view>
+      </view>
+    </view>
+  </view>
+
+  <privacy-popup show="{{showPrivacyModal}}" bind:close="onClosePrivacy"></privacy-popup>
+  <tabbar current="profile"></tabbar>
+</view>

@@ -1,0 +1,295 @@
+<view class="admin-theme fix-top">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <text class="search-ico">🔍</text>
+    <input placeholder="搜索货品名称或供货商" value="{{keyword}}" bindinput="onSearch" />
+  </view>
+
+  <!-- 分类筛选 -->
+  <view class="cat-bar">
+    <view class="cat-tag {{activeCat === item.id ? 'active' : ''}}"
+      wx:for="{{catList}}" wx:key="id"
+      bindtap="onCatTap" data-id="{{item.id}}"
+      style="{{activeCat === item.id ? 'background:#4f46e5;color:#fff;' : ''}}">
+      {{item.name}}
+    </view>
+    <view class="cat-tag" bindtap="openCatModal" style="background:#eef2ff;color:#4f46e5;font-size:24rpx;">⚙ 管理</view>
+    <view class="cat-tag" bindtap="onImportTap" style="background:#fef3c7;color:#d97706;font-size:24rpx;">📥 导入</view>
+  </view>
+
+  <!-- 货品列表 -->
+  <view class="card">
+    <view wx:if="{{filteredGoods.length === 0}}" class="empty-block">
+      <view class="empty-ico">📦</view>
+      <view>暂无货品</view>
+    </view>
+    <view wx:for="{{filteredGoods}}" wx:key="_id"
+      class="goods-item" bindtap="onGoodsTap" data-idx="{{index}}">
+      <image wx:if="{{item.hasImage}}" src="{{item.image}}" mode="aspectFill" class="goods-thumb" />
+      <view wx:else class="goods-avatar">{{item.icon}}</view>
+      <view class="goods-info" style="flex:1;overflow:hidden;">
+        <view class="goods-name">
+          {{item.name}}
+          <text wx:if="{{item.onShelf === false}}" style="font-size:20rpx;color:#9ca3af;background:#f3f4f6;padding:2rpx 10rpx;border-radius:6rpx;margin-left:8rpx;font-weight:400;">已下架</text>
+        </view>
+        <view class="goods-meta">{{item.code || '-'}} · {{item.catName}} · {{item.specWeight || '-'}} · {{item.specCount || '-'}}</view>
+        <view class="goods-meta" wx:if="{{item.supplierName}}" style="font-size:22rpx;color:#ea580c;">🚚 {{item.supplierName}}</view>
+        <view class="goods-meta" wx:if="{{item.description}}" style="font-size:22rpx;color:#94a3b8;">{{item.description}}</view>
+      </view>
+      <view style="text-align:right;margin-left:16rpx;white-space:nowrap;">
+        <view style="font-size:28rpx;font-weight:700;color:var(--text);">¥{{item.price}}</view>
+        <view style="font-size:22rpx;color:var(--text-2);">/{{item.unit}}</view>
+        <view catchtap="toggleShelf" data-id="{{item._id}}" style="margin-top:8rpx;font-size:22rpx;padding:6rpx 16rpx;border-radius:20rpx;{{item.onShelf === false ? 'background:#10b981;color:#fff;' : 'background:#f3f4f6;color:#64748b;'}}">
+          {{item.onShelf === false ? '上架' : '下架'}}
+        </view>
+        <view wx:if="{{item.monthlyOrderCount > 0 || item.totalOrderCount > 0}}" style="margin-top:6rpx;padding:4rpx 10rpx;border-radius:8rpx;background:#eef2ff;">
+          <view style="font-size:20rpx;color:#4f46e5;font-weight:600;">本月 {{item.monthlyOrderCount}} 件</view>
+          <view style="font-size:18rpx;color:#818cf8;">累计 {{item.totalOrderCount}} 件</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增按钮 -->
+  <view style="position:fixed;right:40rpx;bottom:180rpx;width:100rpx;height:100rpx;border-radius:50%;background:#4f46e5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:48rpx;box-shadow:0 8rpx 24rpx rgba(79,70,229,.3);z-index:100;"
+    bindtap="onAddTap">＋</view>
+
+  <!-- 编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{showModal}}">
+    <view class="modal-overlay" bindtap="closeModal"></view>
+    <view class="modal-body">
+      <view class="modal-title">{{modalTitle}}</view>
+
+      <!-- 图片上传 -->
+      <view class="form-group">
+        <view class="form-label">货品图片</view>
+        <view wx:if="{{form.image}}" style="position:relative;display:inline-block;">
+          <image src="{{form.image}}" mode="aspectFill" style="width:160rpx;height:160rpx;border-radius:12rpx;" />
+          <view style="position:absolute;top:-12rpx;right:-12rpx;width:40rpx;height:40rpx;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24rpx;"
+            bindtap="onRemoveImage">✕</view>
+        </view>
+        <view wx:else style="width:160rpx;height:160rpx;border:2rpx dashed #cbd5e1;border-radius:12rpx;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;"
+          bindtap="onChooseImage">
+          <view style="font-size:40rpx;">📷</view>
+          <view style="font-size:22rpx;margin-top:4rpx;">点击上传</view>
+        </view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">编号 <text style="font-size:22rpx;color:#94a3b8;">（留空自动生成）</text></view>
+        <input class="form-input" value="{{form.code}}" bindinput="onFormChange" data-field="code" placeholder="如：SP0001" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">名称 <text style="color:#ef4444;">*</text></view>
+        <input class="form-input" value="{{form.name}}" bindinput="onFormChange" data-field="name" placeholder="货品名称" />
+      </view>
+      <view class="form-group">
+        <view class="form-label">分类</view>
+        <picker range="{{catPicker}}" range-key="name" value="{{catPickerIdx}}" bindchange="onPickerCat">
+          <view class="form-input" style="display:flex;align-items:center;">{{form.categoryName || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-group">
+        <view class="form-label">计量单位</view>
+        <input class="form-input" value="{{form.unit}}" bindinput="onFormChange" data-field="unit" placeholder="如：斤、袋、箱" />
+      </view>
+
+      <!-- 规格区 -->
+      <view style="background:#f8fafc;border-radius:12rpx;padding:16rpx;margin-bottom:24rpx;">
+        <view style="font-size:26rpx;font-weight:700;color:#4f46e5;margin-bottom:16rpx;">📏 规格信息</view>
+        <view style="display:flex;gap:16rpx;">
+          <view style="flex:1;">
+            <view class="form-label">规格重量</view>
+            <input class="form-input" value="{{form.specWeight}}" bindinput="onFormChange" data-field="specWeight" placeholder="如：500g" />
+          </view>
+          <view style="flex:1;">
+            <view class="form-label">规格数量</view>
+            <input class="form-input" value="{{form.specCount}}" bindinput="onFormChange" data-field="specCount" placeholder="如：1份/约15只" />
+          </view>
+        </view>
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">单价 (元/{{form.unit || '单位'}})</view>
+        <input class="form-input" type="digit" value="{{form.price}}" bindinput="onFormChange" data-field="price" placeholder="0" />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">说明</view>
+        <textarea class="form-textarea" value="{{form.description}}" bindinput="onFormChange" data-field="description" placeholder="货品描述、产地、备注等" />
+      </view>
+
+      <view class="form-group">
+        <view class="form-label">供货商</view>
+        <input class="form-input" value="{{form.supplierName}}" bindinput="onSupplierInput" bindblur="hideSupplierSuggestions" placeholder="输入供货商名称，不存在则自动创建" />
+        <view wx:if="{{showSuggestions}}" class="supplier-suggest">
+          <view wx:for="{{supplierSuggestions}}" wx:key="_id"
+            class="supplier-suggest-item"
+            bindtap="onSelectSupplier" data-idx="{{index}}">
+            <text class="supplier-suggest-name">{{item.name}}</text>
+            <text wx:if="{{item.contact}}" class="supplier-suggest-contact">{{item.contact}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-actions">
+        <view class="btn btn-outline" bindtap="closeModal">取消</view>
+        <view class="btn" style="background:#4f46e5;color:#fff;" bindtap="saveGoods">保存</view>
+      </view>
+      <view wx:if="{{form._id}}" style="margin-top:16rpx;text-align:center;">
+        <view class="btn btn-danger btn-sm" bindtap="deleteGoods">删除货品</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类管理弹窗 -->
+  <view class="modal-mask" wx:if="{{showCatModal}}">
+    <view class="modal-overlay" bindtap="closeCatModal"></view>
+    <view class="modal-body">
+      <view class="modal-title">分类管理</view>
+
+      <!-- 已有分类列表 -->
+      <view style="margin-bottom:24rpx;">
+        <view wx:for="{{allCats}}" wx:key="_id"
+          style="display:flex;align-items:center;padding:16rpx 0;border-bottom:1rpx solid #f1f5f9;">
+          <!-- 正常显示模式 -->
+          <block wx:if="{{editingCatId !== item._id}}">
+            <text style="font-size:32rpx;margin-right:12rpx;">{{item.icon}}</text>
+            <text style="flex:1;font-size:28rpx;font-weight:600;">{{item.name}}</text>
+            <view style="color:#4f46e5;font-size:24rpx;padding:8rpx 16rpx;"
+              bindtap="startEditCat" data-id="{{item._id}}">编辑</view>
+            <view style="color:#ef4444;font-size:24rpx;padding:8rpx 16rpx;"
+              bindtap="deleteCat" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+          </block>
+          <!-- 编辑模式 -->
+          <block wx:else>
+            <input value="{{editingCatIcon}}" bindinput="onEditCatIcon" placeholder="图标" style="width:80rpx;text-align:center;font-size:32rpx;padding:12rpx;border:2rpx solid #e2e8f0;border-radius:10rpx;" />
+            <input value="{{editingCatName}}" bindinput="onEditCatName" placeholder="分类名称" style="flex:1;margin:0 16rpx;padding:12rpx 20rpx;border:2rpx solid #e2e8f0;border-radius:10rpx;font-size:28rpx;" />
+            <view style="color:#4f46e5;font-size:24rpx;padding:8rpx 16rpx;font-weight:600;"
+              bindtap="saveEditCat">保存</view>
+            <view style="color:#94a3b8;font-size:24rpx;padding:8rpx 16rpx;"
+              bindtap="cancelEditCat">取消</view>
+          </block>
+        </view>
+      </view>
+
+      <!-- 新增分类 -->
+      <view style="background:#f8fafc;border-radius:12rpx;padding:20rpx;margin-bottom:24rpx;">
+        <view style="font-size:26rpx;font-weight:700;color:#4f46e5;margin-bottom:16rpx;">添加新分类</view>
+        <view style="display:flex;gap:16rpx;align-items:center;">
+          <input value="{{newCatIcon}}" bindinput="onNewCatIcon" placeholder="图标" style="width:80rpx;text-align:center;font-size:32rpx;padding:12rpx;border:2rpx solid #e2e8f0;border-radius:10rpx;" />
+          <input value="{{newCatName}}" bindinput="onNewCatName" placeholder="分类名称" style="flex:1;padding:12rpx 20rpx;border:2rpx solid #e2e8f0;border-radius:10rpx;font-size:28rpx;" />
+        </view>
+        <view class="btn" style="background:#4f46e5;color:#fff;margin-top:16rpx;text-align:center;padding:16rpx;border-radius:10rpx;font-size:28rpx;"
+          bindtap="addNewCat">添加</view>
+      </view>
+
+      <view class="modal-actions">
+        <view class="btn btn-outline" bindtap="closeCatModal">关闭</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 粘贴内容弹窗（模拟器/文件选择失败时使用） -->
+  <view class="modal-mask" wx:if="{{showPasteFallback}}">
+    <view class="modal-overlay" bindtap="closePasteFallback"></view>
+    <view class="modal-body" style="max-height:85vh;">
+      <view class="modal-title">粘贴表格内容</view>
+      <view style="background:#f8fafc;border-radius:12rpx;padding:16rpx;margin-bottom:20rpx;font-size:22rpx;color:#64748b;line-height:1.6;">
+        电脑 Excel/WPS 中选中所有行（含表头）复制，粘贴到下方。支持 Tab 分隔（Excel复制）和逗号分隔（CSV文本）。
+      </view>
+      <textarea style="width:100%;height:400rpx;border:2rpx solid #e2e8f0;border-radius:12rpx;padding:16rpx;font-size:26rpx;box-sizing:border-box;"
+        placeholder="在此粘贴表格内容..."
+        value="{{pasteText}}" bindinput="onPasteTextInput" />
+      <view style="display:flex;gap:16rpx;margin-top:20rpx;">
+        <view class="btn btn-outline" style="flex:1;text-align:center;padding:20rpx;border-radius:12rpx;" bindtap="closePasteFallback">取消</view>
+        <view class="btn" style="flex:1;background:#4f46e5;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-weight:600;"
+          bindtap="submitPasteText">解析并预览</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 批量导入弹窗 -->
+  <view class="modal-mask" wx:if="{{showImportModal}}">
+    <view class="modal-overlay" bindtap="closeImportModal"></view>
+    <view class="modal-body" style="max-height:85vh;">
+      <view class="modal-title">批量导入货品</view>
+
+      <!-- 操作步骤 -->
+      <view wx:if="{{importPreview.length === 0 && !importing}}" style="margin-bottom:24rpx;">
+        <view style="background:#f8fafc;border-radius:12rpx;padding:24rpx;margin-bottom:20rpx;">
+          <view style="font-size:26rpx;font-weight:700;color:#4f46e5;margin-bottom:16rpx;">使用步骤</view>
+          <view style="font-size:24rpx;color:#64748b;line-height:1.8;">
+            <view>1. 点击「下载模板」打开文件</view>
+            <view>2. 点右上角 ··· 转发到文件传输助手</view>
+            <view>3. 电脑 Excel/WPS 编辑后保存（不要改文件名后缀）</view>
+            <view>4. 发回微信文件传输助手</view>
+            <view>5. 回到小程序点「选择文件」从聊天选取</view>
+          </view>
+        </view>
+
+        <view style="background:#fff7ed;border-radius:12rpx;padding:16rpx;margin-bottom:20rpx;">
+          <view style="font-size:22rpx;color:#ea580c;line-height:1.6;">
+            注意：支持 XLS 和 CSV 格式。分类名称需与已有分类一致，否则归入首个分类。编号留空自动生成。供货商不存在会自动创建。
+          </view>
+        </view>
+
+        <view class="btn" style="background:#4f46e5;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-size:28rpx;margin-bottom:16rpx;display:flex;width:100%;box-sizing:border-box;"
+          bindtap="downloadTemplate">📥 下载模板</view>
+        <view class="btn" style="background:#0f766e;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-size:28rpx;display:flex;width:100%;box-sizing:border-box;"
+          bindtap="chooseImportFile">📁 选择文件</view>
+      </view>
+
+      <!-- 预览数据 -->
+      <view wx:if="{{importPreview.length > 0 && !importing}}">
+        <view style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16rpx;">
+          <view style="font-size:26rpx;font-weight:700;color:#1e293b;">
+            已选 {{importSelectedCount}}/{{importPreview.length}} 条
+          </view>
+          <view style="display:flex;gap:16rpx;">
+            <text style="font-size:24rpx;color:#4f46e5;" bindtap="importToggleAll">{{importAllSelected ? '取消全选' : '全选'}}</text>
+            <text style="font-size:24rpx;color:#4f46e5;" bindtap="chooseImportFile">重新选择</text>
+          </view>
+        </view>
+
+        <scroll-view scroll-y style="max-height:500rpx;border:2rpx solid #e2e8f0;border-radius:12rpx;margin-bottom:20rpx;">
+          <view wx:for="{{importPreview}}" wx:key="idx"
+            style="display:flex;align-items:center;padding:16rpx 20rpx;border-bottom:1rpx solid #f1f5f9;{{item.selected === false ? 'opacity:0.35;' : ''}}">
+            <view class="cart-check {{item.selected !== false ? 'checked' : ''}}" bindtap="importToggleItem" data-idx="{{item.idx}}"
+              style="width:40rpx;height:40rpx;border-radius:50%;border:2rpx solid #cbd5e1;display:flex;align-items:center;justify-content:center;margin-right:12rpx;flex-shrink:0;font-size:22rpx;{{item.selected !== false ? 'background:#4f46e5;border-color:#4f46e5;color:#fff;' : ''}}">
+              <text wx:if="{{item.selected !== false}}">✓</text>
+            </view>
+            <view style="flex:1;overflow:hidden;">
+              <view style="font-size:26rpx;font-weight:600;color:{{item.valid ? '#1e293b' : '#ef4444'}};">{{item.name}}</view>
+              <view style="font-size:22rpx;color:#94a3b8;">{{item.code}} · {{item.category}} · ¥{{item.price}}/{{item.unit}}</view>
+              <view wx:if="{{item.supplierName !== '-'}}" style="font-size:22rpx;color:#ea580c;">🚚 {{item.supplierName}}</view>
+            </view>
+            <view style="font-size:20rpx;padding:4rpx 12rpx;border-radius:8rpx;background:{{item.catMatched ? '#dcfce7' : '#fee2e2'}};color:{{item.catMatched ? '#16a34a' : '#ef4444'}};white-space:nowrap;">
+              {{item.catMatched ? '分类✓' : '分类✗'}}
+            </view>
+          </view>
+        </scroll-view>
+
+        <view style="display:flex;gap:16rpx;">
+          <view class="btn btn-outline" style="flex:1;text-align:center;padding:20rpx;border-radius:12rpx;" bindtap="closeImportModal">取消</view>
+          <view class="btn" style="flex:1;background:#4f46e5;color:#fff;text-align:center;padding:20rpx;border-radius:12rpx;font-weight:600;"
+            bindtap="confirmImport">确认导入</view>
+        </view>
+      </view>
+
+      <!-- 导入中 -->
+      <view wx:if="{{importing}}" style="text-align:center;padding:40rpx 0;">
+        <view style="font-size:32rpx;font-weight:700;color:#4f46e5;margin-bottom:16rpx;">正在导入...</view>
+        <view style="font-size:24rpx;color:#94a3b8;">请勿关闭页面</view>
+      </view>
+
+      <!-- 导入结果 -->
+      <view wx:if="{{importProgress && !importing}}" style="text-align:center;padding:20rpx 0;">
+        <view style="font-size:30rpx;font-weight:700;color:#16a34a;margin-bottom:16rpx;">{{importProgress}}</view>
+        <view class="btn btn-outline" style="text-align:center;padding:16rpx 40rpx;border-radius:12rpx;display:inline-block;" bindtap="closeImportModal">关闭</view>
+      </view>
+    </view>
+  </view>
+
+  <tabbar current="goods"></tabbar>
+</view>

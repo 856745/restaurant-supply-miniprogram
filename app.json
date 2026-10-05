@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/login/index",
+    "pages/feedback/index",
+    "pages/messages/index"
+  ],
+  "subpackages": [
+    {
+      "root": "pages/admin",
+      "name": "admin",
+      "pages": [
+        "dashboard/index",
+        "users/index",
+        "stores/index",
+        "orders/index",
+        "orders/detail/index",
+        "goods/index",
+        "profile/index",
+        "feedback/index"
+      ]
+    },
+    {
+      "root": "pages/manager",
+      "name": "manager",
+      "pages": [
+        "dashboard/index",
+        "goods/index",
+        "purchase/index",
+        "cart/index",
+        "inventory/index",
+        "inventory-check/index",
+        "orders/index",
+        "orders/detail/index",
+        "reports/index",
+        "suppliers/index",
+        "profile/index"
+      ]
+    },
+    {
+      "root": "pages/supplier",
+      "name": "supplier",
+      "pages": [
+        "dashboard/index",
+        "orders/index",
+        "products/index",
+        "reports/index",
+        "profile/index"
+      ]
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f8fafc",
+    "navigationBarTitleText": "餐饮供货管理",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f1f5f9"
+  },
+  "resizable": true,
+  "lazyCodeLoading": "requiredComponents",
+  "__usePrivacyCheck__": true,
+  "serviceClasses": [],
+  "usingComponents": {
+    "tabbar": "/components/tabbar/tabbar"
+  },
+  "componentPlaceholder": {
+    "tabbar": "view"
+  },
+  "sitemapLocation": "sitemap.json"
+}

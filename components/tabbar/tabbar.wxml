@@ -1,0 +1,13 @@
+<view class="tabbar">
+  <view class="tab-item {{current === item.key ? 'active' : ''}}"
+    wx:for="{{tabs}}" wx:key="key"
+    bindtap="switchTab" data-route="{{item.route}}">
+    <view class="tab-icon-wrap">
+      <view class="tab-icon">{{item.icon}}</view>
+      <view class="tab-badge" wx:if="{{item.key === 'orders' && unreadCount > 0}}">
+        {{unreadCount > 99 ? '99+' : unreadCount}}
+      </view>
+    </view>
+    <view class="tab-label">{{item.label}}</view>
+  </view>
+</view>
